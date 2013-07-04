@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2013, Daniel Abraham
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<resources>
+
+    <string name="app_name">Secure Preferences Demo</string>
+
+    <string name="get_button">Get Value</string>
+    <string name="set_button">Set Value</string>
+    <string name="remove_button">Remove Value</string>
+    <string name="activity_button">Preference Activity</string>
+    <string name="fragment_button">Preference Fragment</string>
+
+    <string name="checkbox_title">Checkbox preference</string>
+    <string name="checkbox_key">checkbox_key</string>
+
+    <string name="text_title">Text preference</string>
+    <string name="text_key">text_key</string>
+    <string name="text_default">Foo Bar</string>
+
+    <string name="list_title">List preference</string>
+    <string name="list_key">list_key</string>
+    <string name="list_default">3</string>
+    <string-array name="list_entries">
+        <item>One</item>
+        <item>Two</item>
+        <item>Three</item>
+        <item>Four</item>
+    </string-array>
+    <string-array name="list_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+    </string-array>
+
+</resources>
