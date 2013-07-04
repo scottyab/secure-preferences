@@ -17,23 +17,21 @@
 <resources>
 
     <string name="app_name">Secure Preferences Demo</string>
-
-    <string name="get_button">Get Value</string>
-    <string name="set_button">Set Value</string>
-    <string name="remove_button">Remove Value</string>
+    <string name="foo_value_label">Dump of encrypted pref key value pairs:</string>
+    <string name="get_button">Get Foo Value</string>
+    <string name="set_button">Set Foo Value</string>
+    <string name="remove_button">Remove Foo Value</string>
     <string name="activity_button">Preference Activity</string>
     <string name="fragment_button">Preference Fragment</string>
-
     <string name="checkbox_title">Checkbox preference</string>
     <string name="checkbox_key">checkbox_key</string>
-
     <string name="text_title">Text preference</string>
     <string name="text_key">text_key</string>
     <string name="text_default">Foo Bar</string>
-
     <string name="list_title">List preference</string>
     <string name="list_key">list_key</string>
     <string name="list_default">3</string>
+
     <string-array name="list_entries">
         <item>One</item>
         <item>Two</item>

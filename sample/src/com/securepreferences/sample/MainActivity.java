@@ -16,16 +16,29 @@
 
 package com.securepreferences.sample;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.securepreferences.SecurePreferences;
-import com.securepreferences.sample.R;
 
 public class MainActivity extends Activity {
+
+	private SecurePreferences mSecurePrefs;
+
+	private SharedPreferences mPrefsWithoutWraper;
+
+	private TextView encValuesTextView;
 
 	private static final String KEY = "Foo";
 	private static final String VALUE = "Bar";
@@ -34,22 +47,58 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		mSecurePrefs = new SecurePreferences(this);
+		mPrefsWithoutWraper = PreferenceManager
+				.getDefaultSharedPreferences(getApplicationContext());
+
+		encValuesTextView = (TextView) findViewById(R.id.fooValueEncTV);
+		updateEncValueDisplay();
+
+		mPrefsWithoutWraper
+				.registerOnSharedPreferenceChangeListener(new OnSharedPreferenceChangeListener() {
+					@Override
+					public void onSharedPreferenceChanged(
+							SharedPreferences sharedPreferences, String key) {
+						updateEncValueDisplay();
+					}
+				});
+
+	}
+
+	private void updateEncValueDisplay() {
+
+		Map<String, ?> all = mPrefsWithoutWraper.getAll();
+		if (!all.isEmpty()) {
+			StringBuilder builder = new StringBuilder();
+			Set<String> keys = all.keySet();
+			Iterator<String> it = keys.iterator();
+			while (it.hasNext()) {
+				String key = it.next();
+				builder.append("key:" + key);
+				Object value = all.get(key);
+				if (value instanceof String) {
+					builder.append("value:" + (String) value);
+				}
+				builder.append("\n");
+			}
+			encValuesTextView.setText(builder.toString());
+		}
+
 	}
 
 	public void onGetButtonClick(View v) {
-		final String value = new SecurePreferences(this).getString(
-				MainActivity.KEY, null);
+		final String value = mSecurePrefs.getString(MainActivity.KEY, null);
 		Toast.makeText(this, "Value = " + value, Toast.LENGTH_SHORT).show();
 	}
 
 	public void onSetButtonClick(View v) {
-		new SecurePreferences(this).edit()
-				.putString(MainActivity.KEY, MainActivity.VALUE).commit();
+		mSecurePrefs.edit().putString(MainActivity.KEY, MainActivity.VALUE)
+				.commit();
 		Toast.makeText(this, "Done", Toast.LENGTH_SHORT).show();
 	}
 
 	public void onRemoveButtonClick(View v) {
-		new SecurePreferences(this).edit().remove(MainActivity.KEY).commit();
+		mSecurePrefs.edit().remove(MainActivity.KEY).commit();
 		Toast.makeText(this, "Done", Toast.LENGTH_SHORT).show();
 	}
 
