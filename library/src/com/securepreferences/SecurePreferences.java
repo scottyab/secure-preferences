@@ -32,8 +32,6 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import com.securepreferences.util.Base64;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -41,6 +39,8 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
+
+import com.securepreferences.util.Base64;
 
 /**
  * Wrapper class for Android's {@link SharedPreferences} interface, which adds a
@@ -107,7 +107,7 @@ public class SecurePreferences implements SharedPreferences {
 		// Number of PBKDF2 hardening rounds to use, larger values increase
 		// computation time, you should select a value that causes
 		// computation to take >100ms
-		final int iterations = 1000;
+		final int iterations = 2000;
 
 		// Generate a 256-bit key
 		final int keyLength = 256;
@@ -124,7 +124,8 @@ public class SecurePreferences implements SharedPreferences {
 		final SecureRandom random = new SecureRandom();
 
 		// Use the largest AES key length which is supported by the OS
-		final KeyGenerator generator = KeyGenerator.getInstance("AES");
+		final KeyGenerator generator = KeyGenerator
+				.getInstance("AES/CBC/PKCS5Padding");
 		try {
 			generator.init(256, random);
 		} catch (Exception e) {
