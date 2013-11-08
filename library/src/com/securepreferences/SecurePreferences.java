@@ -17,6 +17,7 @@
 package com.securepreferences;
 
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
@@ -28,6 +29,7 @@ import java.util.Set;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -38,6 +40,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.securepreferences.util.Base64;
@@ -52,7 +55,6 @@ import com.securepreferences.util.Base64;
  * even encrypted data may still be susceptible to attacks, especially on rooted
  * or stolen devices!
  * <p>
- * This class requires API level 8 (Android 2.2, a.k.a. "Froyo") or greater.
  * 
  * @see <a
  *      href="http://www.codeproject.com/Articles/549119/Encryption-Wrapper-for-Android-SharedPreferences">CodeProject
@@ -60,8 +62,21 @@ import com.securepreferences.util.Base64;
  */
 public class SecurePreferences implements SharedPreferences {
 
+	private static final int KEY_SIZE = 256;
+	// requires Spongycastle crypto libraries
+	// private static final String AES_KEY_ALG = "AES/GCM/NoPadding";
+	// private static final String AES_KEY_ALG = "AES/CBC/PKCS5Padding";
+	private static final String AES_KEY_ALG = "AES";
+	private static final String PRIMARY_PBE_KEY_ALG = "PBKDF2WithHmacSHA1";
+	private static final String BACKUP_PBE_KEY_ALG = "PBEWithMD5AndDES";
+	private static final int ITERATIONS = 2000;
+	// change to SC if using Spongycastle crypto libraries
+	private static final String PROVIDER = "BC";
+
 	private static SharedPreferences sFile;
 	private static byte[] sKey;
+	private static boolean sLoggingEnabled = false;
+	private static final String TAG = SecurePreferences.class.getName();
 
 	/**
 	 * Constructor.
@@ -85,6 +100,9 @@ public class SecurePreferences implements SharedPreferences {
 			}
 			SecurePreferences.sKey = SecurePreferences.decode(value);
 		} catch (Exception e) {
+			if (sLoggingEnabled) {
+				Log.e(TAG, "Error init:" + e.getMessage());
+			}
 			throw new IllegalStateException(e);
 		}
 	}
@@ -98,25 +116,85 @@ public class SecurePreferences implements SharedPreferences {
 	}
 
 	private static String generateAesKeyName(Context context)
-			throws InvalidKeySpecException, NoSuchAlgorithmException {
+			throws InvalidKeySpecException, NoSuchAlgorithmException,
+			NoSuchProviderException {
 		final char[] password = context.getPackageName().toCharArray();
-		final byte[] salt = Settings.Secure.getString(
-				context.getContentResolver(), Settings.Secure.ANDROID_ID)
-				.getBytes();
 
-		// Number of PBKDF2 hardening rounds to use, larger values increase
-		// computation time, you should select a value that causes
-		// computation to take >100ms
-		final int iterations = 2000;
+		final byte[] salt = getDeviceSerialNumber(context).getBytes();
 
-		// Generate a 256-bit key
-		final int keyLength = 256;
+		SecretKey key;
+		try {
+			// TODO: what if there's an OS upgrade and now supports the primary
+			// PBE
+			key = SecurePreferences.generatePBEKey(password, salt,
+					PRIMARY_PBE_KEY_ALG, ITERATIONS, KEY_SIZE);
+		} catch (NoSuchAlgorithmException e) {
+			// older devices may not support the have the implementation try
+			// with a weaker
+			// algorthm
+			key = SecurePreferences.generatePBEKey(password, salt,
+					BACKUP_PBE_KEY_ALG, ITERATIONS, KEY_SIZE);
+		}
+		return SecurePreferences.encode(key.getEncoded());
+	}
 
-		final KeySpec spec = new PBEKeySpec(password, salt, iterations,
+	/**
+	 * Derive a secure key based on the passphraseOrPin
+	 * 
+	 * @param passphraseOrPin
+	 * @param salt
+	 * @param algorthm
+	 *            - which PBE algorthm to use. some <4.0 devices don;t support
+	 *            the prefered PBKDF2WithHmacSHA1
+	 * @param iterations
+	 *            - Number of PBKDF2 hardening rounds to use. Larger values
+	 *            increase computation time (a good thing), defaults to 1000 if
+	 *            not set.
+	 * @param keyLength
+	 * @return Derived Secretkey
+	 * @throws NoSuchAlgorithmException
+	 * @throws InvalidKeySpecException
+	 * @throws NoSuchProviderException
+	 */
+	private static SecretKey generatePBEKey(char[] passphraseOrPin,
+			byte[] salt, String algorthm, int iterations, int keyLength)
+			throws NoSuchAlgorithmException, InvalidKeySpecException,
+			NoSuchProviderException {
+
+		if (iterations == 0) {
+			iterations = 1000;
+		}
+
+		SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(
+				algorthm, PROVIDER);
+		KeySpec keySpec = new PBEKeySpec(passphraseOrPin, salt, iterations,
 				keyLength);
-		return SecurePreferences.encode(SecretKeyFactory
-				.getInstance("PBKDF2WithHmacSHA1").generateSecret(spec)
-				.getEncoded());
+		SecretKey secretKey = secretKeyFactory.generateSecret(keySpec);
+		return secretKey;
+	}
+
+	/**
+	 * Gets the hardware serial number of this device.
+	 * 
+	 * @return serial number or Settings.Secure.ANDROID_ID if not available.
+	 */
+	private static String getDeviceSerialNumber(Context context) {
+		// We're using the Reflection API because Build.SERIAL is only available
+		// since API Level 9 (Gingerbread, Android 2.3).
+		try {
+			String deviceSerial = (String) Build.class.getField("SERIAL").get(
+					null);
+			if (TextUtils.isEmpty(deviceSerial)) {
+				deviceSerial = Settings.Secure.getString(
+						context.getContentResolver(),
+						Settings.Secure.ANDROID_ID);
+			}
+			return deviceSerial;
+		} catch (Exception ignored) {
+			// default to Android_ID
+			return Settings.Secure.getString(context.getContentResolver(),
+					Settings.Secure.ANDROID_ID);
+		}
 	}
 
 	private static String generateAesKeyValue() throws NoSuchAlgorithmException {
@@ -124,10 +202,9 @@ public class SecurePreferences implements SharedPreferences {
 		final SecureRandom random = new SecureRandom();
 
 		// Use the largest AES key length which is supported by the OS
-		final KeyGenerator generator = KeyGenerator
-				.getInstance("AES/CBC/PKCS5Padding");
+		final KeyGenerator generator = KeyGenerator.getInstance("AES");
 		try {
-			generator.init(256, random);
+			generator.init(KEY_SIZE, random);
 		} catch (Exception e) {
 			try {
 				generator.init(192, random);
@@ -143,13 +220,15 @@ public class SecurePreferences implements SharedPreferences {
 			return cleartext;
 		}
 		try {
-			final Cipher cipher = Cipher.getInstance("AES");
+			final Cipher cipher = Cipher.getInstance(AES_KEY_ALG, PROVIDER);
 			cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(
-					SecurePreferences.sKey, "AES"));
+					SecurePreferences.sKey, AES_KEY_ALG));
 			return SecurePreferences.encode(cipher.doFinal(cleartext
 					.getBytes("UTF-8")));
 		} catch (Exception e) {
-			Log.w(SecurePreferences.class.getName(), "encrypt", e);
+			if (sLoggingEnabled) {
+				Log.w(TAG, "encrypt", e);
+			}
 			return null;
 		}
 	}
@@ -159,13 +238,15 @@ public class SecurePreferences implements SharedPreferences {
 			return ciphertext;
 		}
 		try {
-			final Cipher cipher = Cipher.getInstance("AES");
+			final Cipher cipher = Cipher.getInstance(AES_KEY_ALG, PROVIDER);
 			cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(
-					SecurePreferences.sKey, "AES"));
+					SecurePreferences.sKey, AES_KEY_ALG));
 			return new String(cipher.doFinal(SecurePreferences
 					.decode(ciphertext)), "UTF-8");
 		} catch (Exception e) {
-			Log.w(SecurePreferences.class.getName(), "decrypt", e);
+			if (sLoggingEnabled) {
+				Log.w(TAG, "decrypt", e);
+			}
 			return null;
 		}
 	}
@@ -192,6 +273,21 @@ public class SecurePreferences implements SharedPreferences {
 				SecurePreferences.encrypt(key), null);
 		return (encryptedValue != null) ? SecurePreferences
 				.decrypt(encryptedValue) : defaultValue;
+	}
+
+	/**
+	 * 
+	 * Added to get a values as as it can be useful to store values that are
+	 * already encrypted and encoded
+	 * 
+	 * @param key
+	 * @param defaultValue
+	 * @return Unencrypted value of the key or the defaultValue if
+	 */
+	public String getStringUnencrypted(String key, String defaultValue) {
+		final String nonEncryptedValue = SecurePreferences.sFile.getString(
+				SecurePreferences.encrypt(key), null);
+		return (nonEncryptedValue != null) ? nonEncryptedValue : defaultValue;
 	}
 
 	@Override
@@ -302,6 +398,22 @@ public class SecurePreferences implements SharedPreferences {
 			return this;
 		}
 
+		/**
+		 * This is useful for storing values that have be encrypted by something
+		 * else
+		 * 
+		 * @param key
+		 *            - encrypted as usual
+		 * @param value
+		 *            will not be encrypted
+		 * @return
+		 */
+		public SharedPreferences.Editor putStringNoEncrypted(String key,
+				String value) {
+			mEditor.putString(SecurePreferences.encrypt(key), value);
+			return this;
+		}
+
 		@Override
 		@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 		public SharedPreferences.Editor putStringSet(String key,
@@ -370,6 +482,14 @@ public class SecurePreferences implements SharedPreferences {
 				commit();
 			}
 		}
+	}
+
+	public static boolean isLoggingEnabled() {
+		return sLoggingEnabled;
+	}
+
+	public static void setLoggingEnabled(boolean loggingEnabled) {
+		sLoggingEnabled = loggingEnabled;
 	}
 
 	@Override
