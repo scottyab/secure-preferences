@@ -31,26 +31,64 @@
         android:layout_height="wrap_content"
         android:orientation="vertical" >
 
-        <Button
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:onClick="onGetButtonClick"
-            android:text="@string/get_button" />
+            android:text="@string/welcome" />
 
-        <Button
+        <TextView
+            android:id="@+id/LinkToGithub"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:onClick="onSetButtonClick"
-            android:text="@string/set_button" />
+            android:text="@string/linktogithub" />
 
-        <Button
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:onClick="onRemoveButtonClick"
-            android:text="@string/remove_button" />
+            android:orientation="horizontal" >
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_weight="1"
+                android:minHeight="@dimen/min_button_height"
+                android:onClick="onGetButtonClick"
+                android:text="@string/get_button" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_weight="1"
+                android:minHeight="@dimen/min_button_height"
+                android:onClick="onSetButtonClick"
+                android:text="@string/set_button" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_weight="1"
+                android:minHeight="@dimen/min_button_height"
+                android:onClick="onRemoveButtonClick"
+                android:text="@string/remove_button" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_weight="1"
+                android:minHeight="@dimen/min_button_height"
+                android:onClick="onClearAllButtonClick"
+                android:text="@string/clear_all_prefs_button" />
+        </LinearLayout>
 
         <Button
             android:layout_width="match_parent"

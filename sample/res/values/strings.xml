@@ -17,10 +17,13 @@
 <resources>
 
     <string name="app_name">Secure Preferences Demo</string>
+    <string name="welcome">Welcome to the Secure Preferences sample app. This demostrats saving and retieving data to secure preferences which adheres to the SharedPreference Interface.</string>
+    <string name="linktogithub">Get the code on <a href="https://github.com/scottyab/secure-preferences">github</a></string>
     <string name="foo_value_label">Dump of encrypted pref key value pairs:</string>
     <string name="get_button">Get Foo Value</string>
     <string name="set_button">Set Foo Value</string>
     <string name="remove_button">Remove Foo Value</string>
+    <string name="clear_all_prefs_button">Clear all prefs</string>
     <string name="activity_button">Preference Activity</string>
     <string name="fragment_button">Preference Fragment</string>
     <string name="checkbox_title">Checkbox preference</string>

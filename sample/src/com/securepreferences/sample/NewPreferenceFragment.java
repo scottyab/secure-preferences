@@ -30,7 +30,6 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 
 import com.securepreferences.SecurePreferences;
-import com.securepreferences.sample.R;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class NewPreferenceFragment extends PreferenceFragment {
