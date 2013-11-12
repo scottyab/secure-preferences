@@ -1,15 +1,41 @@
 Secure-preferences
 ==================
 
-This is Android Shared preference wrapper that encrypts the keys and values of Shared Preferences using 256-bit AES. *The key is stored in the perferences and so can be read and extracted by root user.* Keys and values are encrypted and base64 encooded before storing into prefs. 
+This is Android Shared preference wrapper that encrypts the keys and values of Shared Preferences using 256-bit AES. **The key is stored in the perferences and so can be read and extracted by root user.** Keys and values are encrypted and base64 encooded before storing into prefs. 
 
-Much of the original code is from Daniel Abraham article on codeproject 
-http://www.codeproject.com/Articles/549119/Encryption-Wrapper-for-Android-SharedPreferences This project was created and shared on Github with his permission. 
+The sample app is availbile on [playstore](https://play.google.com/store/apps/details?id=com.securepreferences.sample)
 
-For the initial import to github I've modified the project structure and included the Android base64 class so library can be used by Android 2.1+. The sample project is pretty basic but shows getting/setting prefs and dumps current prefs to illustrate the fact they are stored encrypted and Base64 encoded. 
+Much of the original code is from Daniel Abraham article on [codeproject](http://www.codeproject.com/Articles/549119/Encryption-Wrapper-for-Android-SharedPreferences). This project was created and shared on Github with his permission. 
+
+[screenshot]: https://github.com/scottyab/secure-preferences/raw/master/docs/images/ss_frame_secure_pref.png "Sample app Screenshot"
+
+##Release Notes:
+0.0.3
+
+* Added test Project
+* Updated sample ready for playstore upload 
+
+0.0.2
+
+* Added methods to get/set strings un-encrypted 
+* Added backup PBKDF function in case PBKDF2WithHmacSHA1 not supported
+* Refactored code to make it easier to change the AES mode and PBKDF function. 
+* Increased iterations of PBKDF from 1000 to 2000. 
+
+0.0.1 
+
+* Initial import to github I've modified the project structure. 
+* Included the Android base64 class so library can be used by Android 2.1+. 
+* Enhanced the sample project dumps current prefs to illustrate the fact they are stored encrypted and Base64 encoded. 
+
 
 ###Disclaimer
 It's not bullet proof security (in fact it's more like obfuscation of the perferences) but it's a quick win for incrementally making your android app more secure. For instance it'll stop users on rooted devices easily modifiying your app's shared prefs. 
+
+
+###Contributing 
+Please do send me pull requests, but also bugs and enhancement requests are welcome. Although no guarantees on when I can review them.  
+
 
 ###Licence 
 Apache License, Version 2.0
