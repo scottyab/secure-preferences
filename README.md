@@ -7,7 +7,7 @@ The sample app is availbile on [playstore](https://play.google.com/store/apps/de
 
 Much of the original code is from Daniel Abraham article on [codeproject](http://www.codeproject.com/Articles/549119/Encryption-Wrapper-for-Android-SharedPreferences). This project was created and shared on Github with his permission. 
 
-[screenshot]: https://github.com/scottyab/secure-preferences/raw/master/docs/images/ss_frame_secure_pref.png "Sample app Screenshot"
+[screenshot]: https://github.com/scottyab/secure-preferences/blob/master/docs/images/ss_frame_secure_pref.png "Sample app Screenshot"
 
 ##Release Notes:
 0.0.3
