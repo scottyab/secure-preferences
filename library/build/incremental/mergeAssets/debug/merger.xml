@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger>
+
+    <dataSet config="main" >
+        <source path="/Users/mgpyone/work/android/examples/secure-preferences/library/assets" />
+    </dataSet>
+    <dataSet config="debug" >
+        <source path="/Users/mgpyone/work/android/examples/secure-preferences/library/src/debug/assets" />
+    </dataSet>
+
+</merger>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger>
+
+    <dataSet config="main" >
+        <source path="/Users/mgpyone/work/android/examples/secure-preferences/library/res" />
+        <source path="/Users/mgpyone/work/android/examples/secure-preferences/library/build/res/rs/release" />
+        <source path="/Users/mgpyone/work/android/examples/secure-preferences/library/build/res/generated/release" />
+    </dataSet>
+    <dataSet config="release" >
+        <source path="/Users/mgpyone/work/android/examples/secure-preferences/library/src/release/res" />
+    </dataSet>
+
+</merger>

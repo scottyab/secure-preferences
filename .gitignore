@@ -18,3 +18,9 @@ local.properties
 # Eclipse project files
 .classpath
 .project
+
+# Gradle
+.gradle
+/local.properties
+/.idea/workspace.xml
+.DS_Store
