@@ -19,8 +19,12 @@ local.properties
 .classpath
 .project
 
-# Gradle
+# Gradle Related
 .gradle
 /local.properties
 /.idea/workspace.xml
 .DS_Store
+.gradle-test-kit
+.idea
+build
+*.iml
