@@ -18,3 +18,13 @@ local.properties
 # Eclipse project files
 .classpath
 .project
+
+# Gradle Related
+.gradle
+/local.properties
+/.idea/workspace.xml
+.DS_Store
+.gradle-test-kit
+.idea
+build
+*.iml
