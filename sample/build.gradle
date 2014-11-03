@@ -2,12 +2,12 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 21
-    buildToolsVersion '21.0.2'
+    buildToolsVersion '21.1.0'
 
     defaultConfig {
         minSdkVersion 8
         targetSdkVersion 21
-        versionCode 1
+        versionCode 2
         versionName "1.0"
     }
 
@@ -22,4 +22,11 @@ android {
             manifest.srcFile 'AndroidManifest.xml'
         }
     }
+
+    dependencies {
+        compile fileTree(dir: 'libs', include: '*.jar')
+        compile project(':library')
+    }
+
+
 }
