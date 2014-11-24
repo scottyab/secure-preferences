@@ -19,6 +19,7 @@
 
 package com.securepreferences.sample;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +32,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,8 +40,7 @@ import android.widget.Toast;
 import com.securepreferences.SecurePreferences;
 
 public class MainActivity extends Activity {
-
-	private SecurePreferences mSecurePrefs;
+    private SecurePreferences mSecurePrefs;
 	private SharedPreferences mInSecurePrefs;
 
 	private TextView encValuesTextView;
@@ -65,6 +66,18 @@ public class MainActivity extends Activity {
 					}
 				});
 
+        // listen for specific keys and receive unencrypted key name on change
+        mSecurePrefs
+                .registerOnSharedPreferenceChangeListener(new OnSharedPreferenceChangeListener() {
+                    @Override
+                    public void onSharedPreferenceChanged(
+                            SharedPreferences sharedPreferences, String key) {
+                        Toast.makeText(MainActivity.this,
+                                "SecurePreference changed with key: " + key,
+                                Toast.LENGTH_SHORT).show();
+                    }
+                },
+                true);
 	}
 
 	private void initViews() {
