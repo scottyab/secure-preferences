@@ -11,6 +11,10 @@ Much of the original code is from Daniel Abraham article on [codeproject](http:/
  
 
 ##Release Notes:
+0.0.4
+* Gralde support thanks @yelinaung 
+* Fix for OnPreferenceChanged listener @richardleggett 
+
 0.0.3
 
 * Added test Project
