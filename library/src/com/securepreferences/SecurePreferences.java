@@ -76,6 +76,9 @@ public class SecurePreferences implements SharedPreferences {
 	private static SharedPreferences sFile;
 	private static byte[] sKey;
 	private static boolean sLoggingEnabled = false;
+    // links user's OnSharedPreferenceChangeListener to secure OnSharedPreferenceChangeListener
+    private static HashMap<OnSharedPreferenceChangeListener, OnSharedPreferenceChangeListener>
+            sOnSharedPreferenceChangeListeners;
 	private static final String TAG = SecurePreferences.class.getName();
 
 	/**
@@ -105,6 +108,9 @@ public class SecurePreferences implements SharedPreferences {
 			}
 			throw new IllegalStateException(e);
 		}
+        // initialize OnSecurePreferencesChangeListener HashMap
+        sOnSharedPreferenceChangeListeners =
+                new HashMap<OnSharedPreferenceChangeListener, OnSharedPreferenceChangeListener>(10);
 	}
 
 	private static String encode(byte[] input) {
@@ -492,17 +498,60 @@ public class SecurePreferences implements SharedPreferences {
 		sLoggingEnabled = loggingEnabled;
 	}
 
-	@Override
-	public void registerOnSharedPreferenceChangeListener(
-			OnSharedPreferenceChangeListener listener) {
-		SecurePreferences.sFile
-				.registerOnSharedPreferenceChangeListener(listener);
-	}
+    @Override
+    public void registerOnSharedPreferenceChangeListener(
+            final OnSharedPreferenceChangeListener listener) {
+        SecurePreferences.sFile
+                .registerOnSharedPreferenceChangeListener(listener);
+    }
+
+    /**
+     * @param listener OnSharedPreferenceChangeListener
+     * @param decryptKeys Callbacks receive the "key" parameter decrypted
+     */
+    public void registerOnSharedPreferenceChangeListener(
+            final OnSharedPreferenceChangeListener listener, boolean decryptKeys) {
+
+        if(!decryptKeys) {
+            registerOnSharedPreferenceChangeListener(listener);
+            return;
+        }
+
+        // wrap user's OnSharedPreferenceChangeListener with another that decrypts key before
+        // calling the onSharedPreferenceChanged callback
+        OnSharedPreferenceChangeListener secureListener =
+                new OnSharedPreferenceChangeListener() {
+                    private OnSharedPreferenceChangeListener mInsecureListener = listener;
+                    @Override
+                    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+                                                          String key) {
+                        try {
+                            String decryptedKey = decrypt(key);
+                            if(decryptedKey != null) {
+                                mInsecureListener.onSharedPreferenceChanged(sharedPreferences,
+                                        decryptedKey);
+                            }
+                        } catch (Exception e) {
+                            Log.w(TAG, "Unable to decrypt key: " + key);
+                        }
+                    }
+                };
+        sOnSharedPreferenceChangeListeners.put(listener, secureListener);
+        SecurePreferences.sFile
+                .registerOnSharedPreferenceChangeListener(secureListener);
+    }
 
 	@Override
 	public void unregisterOnSharedPreferenceChangeListener(
 			OnSharedPreferenceChangeListener listener) {
-		SecurePreferences.sFile
-				.unregisterOnSharedPreferenceChangeListener(listener);
+        if(sOnSharedPreferenceChangeListeners.containsKey(listener)) {
+            OnSharedPreferenceChangeListener secureListener =
+                    sOnSharedPreferenceChangeListeners.remove(listener);
+            SecurePreferences.sFile
+                    .unregisterOnSharedPreferenceChangeListener(secureListener);
+        } else {
+            SecurePreferences.sFile
+                    .unregisterOnSharedPreferenceChangeListener(listener);
+        }
 	}
 }
