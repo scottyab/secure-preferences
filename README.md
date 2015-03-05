@@ -1,6 +1,8 @@
 Secure-preferences
 ==================
 
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-secure--preferences-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/362)
+
 This is Android Shared preference wrapper that encrypts the keys and values of Shared Preferences using 256-bit AES. **The key is stored in the perferences and so can be read and extracted by root user.** Keys and values are encrypted and base64 encooded before storing into prefs. 
 
 The sample app is availbile on [playstore](https://play.google.com/store/apps/details?id=com.securepreferences.sample)
@@ -10,7 +12,17 @@ Much of the original code is from Daniel Abraham article on [codeproject](http:/
 ![screenshot](https://raw.github.com/scottyab/secure-preferences/master/docs/images/ss_frame_secure_pref.png "Sample app Screenshot")
  
 
+##Dependency
+```java
+	dependencies {
+    	compile 'com.scottyab:secure-preferences-lib:0.0.4'
+	}
+```
+
 ##Release Notes:
+0.0.5 (coming soon)
+* default AES to CBC mode for increased security
+
 0.0.4
 * Gralde support thanks @yelinaung 
 * Fix for OnPreferenceChanged listener @richardleggett 
