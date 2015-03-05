@@ -2,13 +2,13 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 21
-    buildToolsVersion '21.1.0'
+    buildToolsVersion '21.1.2'
 
     defaultConfig {
         minSdkVersion 8
         targetSdkVersion 21
-        versionCode 1
-        versionName "1.0"
+        versionCode versionCode
+        versionName version
     }
 
     sourceSets {
@@ -22,4 +22,6 @@ android {
             manifest.srcFile 'AndroidManifest.xml'
         }
     }
+
+    apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
 }

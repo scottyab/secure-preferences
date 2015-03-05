@@ -65,13 +65,16 @@ public class SecurePreferences implements SharedPreferences {
 	private static final int KEY_SIZE = 256;
 	// requires Spongycastle crypto libraries
 	// private static final String AES_KEY_ALG = "AES/GCM/NoPadding";
-	// private static final String AES_KEY_ALG = "AES/CBC/PKCS5Padding";
+	//private static final String AES_KEY_ALG = "AES/CBC/PKCS5Padding";
+
 	private static final String AES_KEY_ALG = "AES";
-	private static final String PRIMARY_PBE_KEY_ALG = "PBKDF2WithHmacSHA1";
+
+    // change to SC if using Spongycastle crypto libraries
+    private static final String PROVIDER = "BC";
+
+    private static final String PRIMARY_PBE_KEY_ALG = "PBKDF2WithHmacSHA1";
 	private static final String BACKUP_PBE_KEY_ALG = "PBEWithMD5AndDES";
 	private static final int ITERATIONS = 2000;
-	// change to SC if using Spongycastle crypto libraries
-	private static final String PROVIDER = "BC";
 
 	private static SharedPreferences sFile;
 	private static byte[] sKey;

@@ -23,7 +23,7 @@
         android:minSdkVersion="7"
         android:targetSdkVersion="21" />
 
-    <application android:allowBackup="false" >
+    <application>
     </application>
 
 </manifest>

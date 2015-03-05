@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-
 android {
     compileSdkVersion 21
     buildToolsVersion '21.1.0'
@@ -13,12 +12,12 @@ android {
 
     sourceSets {
         main {
-            assets.srcDirs       = ['assets']
-            res.srcDirs          = ['res']
-            aidl.srcDirs         = ['src']
-            resources.srcDirs    = ['src']
+            assets.srcDirs = ['assets']
+            res.srcDirs = ['res']
+            aidl.srcDirs = ['src']
+            resources.srcDirs = ['src']
             renderscript.srcDirs = ['src']
-            java.srcDirs         = ['src']
+            java.srcDirs = ['src']
             manifest.srcFile 'AndroidManifest.xml'
         }
     }
@@ -28,5 +27,7 @@ android {
         compile project(':library')
     }
 
-
+}
+dependencies {
+    compile project(':library')
 }
