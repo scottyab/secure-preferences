@@ -18,7 +18,7 @@
 
     <string name="app_name">Secure Preferences Demo</string>
     <string name="welcome">Welcome to the Secure Preferences sample app. This demostrats saving and retieving data to secure preferences which adheres to the SharedPreference Interface.</string>
-    <string name="linktogithub">Get the code on <a href="https://github.com/scottyab/secure-preferences">github</a></string>
+
     <string name="foo_value_label">Dump of encrypted pref key value pairs:</string>
     <string name="get_button">Get Foo Value</string>
     <string name="set_button">Set Foo Value</string>
@@ -34,6 +34,7 @@
     <string name="list_title">List preference</string>
     <string name="list_key">list_key</string>
     <string name="list_default">3</string>
+    <string name="action_github">Get it on Github</string>
 
     <string-array name="list_entries">
         <item>One</item>

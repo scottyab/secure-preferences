@@ -36,12 +36,6 @@
             android:layout_height="wrap_content"
             android:text="@string/welcome" />
 
-        <TextView
-            android:id="@+id/LinkToGithub"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/linktogithub" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

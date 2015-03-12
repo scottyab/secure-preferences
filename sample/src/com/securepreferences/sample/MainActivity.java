@@ -16,28 +16,28 @@
  * AppIcon - http://www.iconarchive.com/show/windows-8-metro-icons-by-dakirby309/Other-Power-Lock-Metro-icon.html
  * 
  */
-
 package com.securepreferences.sample;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.securepreferences.SecurePreferences;
+
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 public class MainActivity extends Activity {
     private SecurePreferences mSecurePrefs;
@@ -47,6 +47,8 @@ public class MainActivity extends Activity {
 
 	private static final String KEY = "Foo";
 	private static final String VALUE = "Bar";
+
+    private static String GITHUB_LINK = "https://github.com/scottyab/secure-preferences";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -82,8 +84,6 @@ public class MainActivity extends Activity {
 
 	private void initViews() {
 		encValuesTextView = (TextView) findViewById(R.id.fooValueEncTV);
-		TextView linkToGibhubTv = (TextView) findViewById(R.id.LinkToGithub);
-		linkToGibhubTv.setMovementMethod(LinkMovementMethod.getInstance());
 	}
 
 	private void initPrefs() {
@@ -105,12 +105,12 @@ public class MainActivity extends Activity {
 			Iterator<String> it = keys.iterator();
 			while (it.hasNext()) {
 				String key = it.next();
-				builder.append("key:" + key);
+				builder.append("prefkey:" + key);
 				Object value = all.get(key);
 				if (value instanceof String) {
-					builder.append("\nvalue:" + (String) value);
+					builder.append("\nprefvalue:" + (String) value);
 				}
-				builder.append("\n");
+				builder.append("\n\n");
 			}
 			encValuesTextView.setText(builder.toString());
 		}
@@ -161,4 +161,23 @@ public class MainActivity extends Activity {
 					Toast.LENGTH_SHORT).show();
 		}
 	}
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_github) {
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse(GITHUB_LINK));
+            startActivity(i);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
