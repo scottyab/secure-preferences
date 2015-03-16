@@ -19,11 +19,18 @@ public class TestSecurePreferences extends AndroidTestCase {
     public static final String USER_PREFS_WITH_PASSWORD = "user_prefs_with_password";
 
     @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        SecurePreferences.setLoggingEnabled(true);
+    }
+
+    @Override
 	protected void tearDown() throws Exception {
 		SecurePreferences securePrefs = new SecurePreferences(mContext);
 		Editor edit = securePrefs.edit();
 		edit.clear();
 		edit.commit();
+
 		super.tearDown();
 	}
 
@@ -40,8 +47,6 @@ public class TestSecurePreferences extends AndroidTestCase {
     }
 
     public void testKeyGenerated() {
-		SecurePreferences.setLoggingEnabled(true);
-
 		SecurePreferences securePrefs = new SecurePreferences(mContext);
 
 		Map<String, String> prefs = securePrefs.getAll();
@@ -52,8 +57,6 @@ public class TestSecurePreferences extends AndroidTestCase {
 	}
 
     public void testKeyGeneratedCustomPrefFile() {
-        SecurePreferences.setLoggingEnabled(true);
-
         SecurePreferences securePrefs = new SecurePreferences(mContext, null, MY_CUSTOM_PREFS);
 
         Map<String, String> prefs = securePrefs.getAll();
@@ -67,8 +70,6 @@ public class TestSecurePreferences extends AndroidTestCase {
 
 
     public void testKeyGeneratedFromUserPassword() {
-        SecurePreferences.setLoggingEnabled(true);
-
         SecurePreferences securePrefs = new SecurePreferences(mContext, "password", USER_PREFS_WITH_PASSWORD);
 
         Map<String, String> prefs = securePrefs.getAll();
@@ -146,9 +147,12 @@ public class TestSecurePreferences extends AndroidTestCase {
 
         securePrefs.destoryKeys();
 
-        String retrievedValue = securePrefs.getString(DEFAULT_KEY, null);
+        try {
+            String retrievedValue = securePrefs.getString(DEFAULT_KEY, null);
+            fail("Null pointer should be thrown");
+        }catch (NullPointerException e){
 
-
+        }
     }
 
 }
