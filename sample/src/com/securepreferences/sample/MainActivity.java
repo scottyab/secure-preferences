@@ -26,7 +26,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -74,9 +73,7 @@ public class MainActivity extends Activity {
                     @Override
                     public void onSharedPreferenceChanged(
                             SharedPreferences sharedPreferences, String key) {
-                        Toast.makeText(MainActivity.this,
-                                "SecurePreference changed with key: " + key,
-                                Toast.LENGTH_SHORT).show();
+                        toast("SecurePreference changed with key: " + key);
                     }
                 },
                 true);
@@ -119,23 +116,20 @@ public class MainActivity extends Activity {
 
 	public void onGetButtonClick(View v) {
 		final String value = mSecurePrefs.getString(MainActivity.KEY, null);
-		Toast.makeText(this, "Value = " + value, Toast.LENGTH_SHORT).show();
+        toast(MainActivity.KEY +"'s, value= " + value);
+
 	}
 
 	public void onSetButtonClick(View v) {
 		mSecurePrefs.edit().putString(MainActivity.KEY, MainActivity.VALUE)
 				.commit();
-		Toast.makeText(
-				this,
-				MainActivity.KEY + " with value:" + MainActivity.VALUE
-						+ ". Saved", Toast.LENGTH_SHORT).show();
+		toast(MainActivity.KEY + " with enc value:" + MainActivity.VALUE
+						+ ". Saved");
 	}
 
 	public void onRemoveButtonClick(View v) {
 		mSecurePrefs.edit().remove(MainActivity.KEY).commit();
-		Toast.makeText(this,
-				"key:" + MainActivity.KEY + " removed from secure prefs",
-				Toast.LENGTH_SHORT).show();
+        toast("key:" + MainActivity.KEY + " removed from secure prefs");
 	}
 
 	public void onClearAllButtonClick(View v) {
@@ -143,9 +137,14 @@ public class MainActivity extends Activity {
 		mInSecurePrefs.edit().clear().commit();
 		initPrefs();
 		updateEncValueDisplay();
-		Toast.makeText(this, "key:" + "All secure prefs cleared",
-				Toast.LENGTH_SHORT).show();
+        toast("All secure prefs cleared");
 	}
+
+    private void toast(String msg){
+        Toast.makeText(this,
+                msg,
+                Toast.LENGTH_SHORT).show();
+    }
 
 	public void onActivityButtonClick(View v) {
 		startActivity(new Intent(this, OldPreferenceActivity.class));
@@ -156,9 +155,7 @@ public class MainActivity extends Activity {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			startActivity(new Intent(this, NewPreferenceActivity.class));
 		} else {
-			Toast.makeText(this,
-					"PreferenceFragment not support before Android 3.0",
-					Toast.LENGTH_SHORT).show();
+			toast("PreferenceFragment not support before Android 3.0");
 		}
 	}
 

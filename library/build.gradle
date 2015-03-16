@@ -1,26 +1,25 @@
 apply plugin: 'com.android.library'
 
+repositories {
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+}
+
 android {
     compileSdkVersion 21
     buildToolsVersion '21.1.2'
 
     defaultConfig {
-        minSdkVersion 8
+        minSdkVersion 10
         targetSdkVersion 21
         versionCode versionCode
         versionName version
     }
 
-    sourceSets {
-        main {
-            assets.srcDirs       = ['assets']
-            res.srcDirs          = ['res']
-            aidl.srcDirs         = ['src']
-            resources.srcDirs    = ['src']
-            renderscript.srcDirs = ['src']
-            java.srcDirs         = ['src']
-            manifest.srcFile 'AndroidManifest.xml'
-        }
+    dependencies {
+        compile 'com.scottyab:aes-crypto:0.0.2-SNAPSHOT'
     }
+
     apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
 }
