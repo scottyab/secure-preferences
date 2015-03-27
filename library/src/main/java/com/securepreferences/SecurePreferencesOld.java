@@ -26,8 +26,6 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 
-import com.tozny.crypto.android.AesCbcWithIntegrity;
-
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
@@ -35,7 +33,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -48,6 +45,8 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
+ * This is the old v.0.4.0 class only kept to help with migration in future versions.
+ *
  * Wrapper class for Android's {@link android.content.SharedPreferences} interface, which adds a
  * layer of encryption to the persistent storage and retrieval of sensitive
  * key-value pairs of primitive data types.
@@ -62,59 +61,8 @@ import javax.crypto.spec.SecretKeySpec;
  *      href="http://www.codeproject.com/Articles/549119/Encryption-Wrapper-for-Android-SharedPreferences">CodeProject
  *      article</a>
  */
-public class SecurePreferencesV1 implements SharedPreferences {
-
-    /**
-     * Used to handle updates to the way the secure
-     */
-    private static final int VERSION = 1;
-    private static final String VERSION_PREF_KEY = "SECURE_PREF_VERSION_KEY";
-
-    /**
-     * Check the internal version with the stored version, to see if upgrade needed.
-     * @return
-     */
-    private boolean isUpgradeNeeded(){
-        int currentVersion = SecurePreferencesV1.sFile.getInt(VERSION_PREF_KEY, 0);
-        if (currentVersion<VERSION){
-            return true;
-        }
-        return false;
-    }
-
-    private void upgradePrefsAndRenewKeys(){
-        int currentVersion = SecurePreferencesV1.sFile.getInt(VERSION_PREF_KEY, 0);
-        if(currentVersion == 0 && VERSION==1){
-
-            //get the current key name and key
-
-            //gen new key name
-
-            //gen new key
-
-            Map<String, ?> allOfThePrefs = SecurePreferencesV1.sFile.getAll();
-            Iterator<String> keys = allOfThePrefs.keySet().iterator();
-            for (int i = 0; keys.hasNext(); i++) {
-                String prefKey = keys.next();
-                Object prefValue = allOfThePrefs.get(prefKey);
-                if(prefValue instanceof String){
-                    //all the encrypted values will be Strings
-                    final String prefValueString = (String)prefValue;
-
-                    final String plainTextPrefKey = decrypt(prefKey);
-                    final String plainTextPrefValue = decrypt(prefValueString);
-
-
-
-                }
-            }
-
-
-
-
-        }
-    }
-
+@Deprecated
+public class SecurePreferencesOld implements SharedPreferences {
 
 	private static final int KEY_SIZE = 256;
 	// requires Spongycastle crypto libraries
@@ -140,23 +88,7 @@ public class SecurePreferencesV1 implements SharedPreferences {
     // links user's OnSharedPreferenceChangeListener to secure OnSharedPreferenceChangeListener
     private static HashMap<OnSharedPreferenceChangeListener, OnSharedPreferenceChangeListener>
             sOnSharedPreferenceChangeListeners;
-	private static final String TAG = SecurePreferencesV1.class.getName();
-
-
-    /**
-     *
-     * @param context
-     * @param password user password/code used to generate encrpytion key.
-     */
-    public SecurePreferencesV1(Context context, String password) {
-
-        //TODO: password change functionality
-
-
-
-    }
-
-
+	private static final String TAG = SecurePreferencesOld.class.getName();
 
 	/**
 	 * Constructor.
@@ -164,22 +96,21 @@ public class SecurePreferencesV1 implements SharedPreferences {
 	 * @param context
 	 *            the caller's context
 	 */
-	public SecurePreferencesV1(Context context) {
+	public SecurePreferencesOld(Context context) {
 		// Proxy design pattern
-		if (SecurePreferencesV1.sFile == null) {
-			SecurePreferencesV1.sFile = PreferenceManager
+		if (SecurePreferencesOld.sFile == null) {
+			SecurePreferencesOld.sFile = PreferenceManager
 					.getDefaultSharedPreferences(context);
 		}
 		// Initialize encryption/decryption key
 		try {
-			final String key = SecurePreferencesV1.generateAesKeyName(context);
-			String value = SecurePreferencesV1.sFile.getString(key, null);
+			final String key = SecurePreferencesOld.generateAesKeyName(context);
+			String value = SecurePreferencesOld.sFile.getString(key, null);
 			if (value == null) {
-				value = SecurePreferencesV1.generateAesKeyValue();
-				SecurePreferencesV1.sFile.edit().putString(key, value).commit();
+				value = SecurePreferencesOld.generateAesKeyValue();
+				SecurePreferencesOld.sFile.edit().putString(key, value).commit();
             }
-			SecurePreferencesV1.sKey = SecurePreferencesV1.decode(value);
-            AesCbcWithIntegrity.keys(value);
+			SecurePreferencesOld.sKey = SecurePreferencesOld.decode(value);
 
 
 		} catch (Exception e) {
@@ -212,16 +143,16 @@ public class SecurePreferencesV1 implements SharedPreferences {
 		try {
 			// TODO: what if there's an OS upgrade and now supports the primary
 			// PBE
-			key = SecurePreferencesV1.generatePBEKey(password, salt,
+			key = SecurePreferencesOld.generatePBEKey(password, salt,
                     PRIMARY_PBE_KEY_ALG, ITERATIONS, KEY_SIZE);
 		} catch (NoSuchAlgorithmException e) {
 			// older devices may not support the have the implementation try
 			// with a weaker
 			// algorthm
-			key = SecurePreferencesV1.generatePBEKey(password, salt,
+			key = SecurePreferencesOld.generatePBEKey(password, salt,
                     BACKUP_PBE_KEY_ALG, ITERATIONS, KEY_SIZE);
 		}
-		return SecurePreferencesV1.encode(key.getEncoded());
+		return SecurePreferencesOld.encode(key.getEncoded());
 	}
 
 	/**
@@ -300,7 +231,7 @@ public class SecurePreferencesV1 implements SharedPreferences {
 				generator.init(128, random);
 			}
 		}
-		return SecurePreferencesV1.encode(generator.generateKey().getEncoded());
+		return SecurePreferencesOld.encode(generator.generateKey().getEncoded());
 	}
 
     @Deprecated
@@ -311,8 +242,8 @@ public class SecurePreferencesV1 implements SharedPreferences {
 		try {
 			final Cipher cipher = Cipher.getInstance(AES_KEY_ALG, PROVIDER);
 			cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(
-					SecurePreferencesV1.sKey, AES_KEY_ALG));
-			return SecurePreferencesV1.encode(cipher.doFinal(cleartext
+					SecurePreferencesOld.sKey, AES_KEY_ALG));
+			return SecurePreferencesOld.encode(cipher.doFinal(cleartext
                     .getBytes("UTF-8")));
 		} catch (Exception e) {
 			if (sLoggingEnabled) {
@@ -330,8 +261,8 @@ public class SecurePreferencesV1 implements SharedPreferences {
 		try {
 			final Cipher cipher = Cipher.getInstance(AES_KEY_ALG, PROVIDER);
 			cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(
-					SecurePreferencesV1.sKey, AES_KEY_ALG));
-			return new String(cipher.doFinal(SecurePreferencesV1
+					SecurePreferencesOld.sKey, AES_KEY_ALG));
+			return new String(cipher.doFinal(SecurePreferencesOld
 					.decode(ciphertext)), "UTF-8");
 		} catch (Exception e) {
 			if (sLoggingEnabled) {
@@ -343,13 +274,13 @@ public class SecurePreferencesV1 implements SharedPreferences {
 
 	@Override
 	public Map<String, String> getAll() {
-		final Map<String, ?> encryptedMap = SecurePreferencesV1.sFile.getAll();
+		final Map<String, ?> encryptedMap = SecurePreferencesOld.sFile.getAll();
 		final Map<String, String> decryptedMap = new HashMap<String, String>(
 				encryptedMap.size());
 		for (Entry<String, ?> entry : encryptedMap.entrySet()) {
 			try {
-				decryptedMap.put(SecurePreferencesV1.decrypt(entry.getKey()),
-						SecurePreferencesV1.decrypt(entry.getValue().toString()));
+				decryptedMap.put(SecurePreferencesOld.decrypt(entry.getKey()),
+						SecurePreferencesOld.decrypt(entry.getValue().toString()));
 			} catch (Exception e) {
 				// Ignore unencrypted key/value pairs
 			}
@@ -359,9 +290,9 @@ public class SecurePreferencesV1 implements SharedPreferences {
 
 	@Override
 	public String getString(String key, String defaultValue) {
-		final String encryptedValue = SecurePreferencesV1.sFile.getString(
-				SecurePreferencesV1.encrypt(key), null);
-		return (encryptedValue != null) ? SecurePreferencesV1
+		final String encryptedValue = SecurePreferencesOld.sFile.getString(
+				SecurePreferencesOld.encrypt(key), null);
+		return (encryptedValue != null) ? SecurePreferencesOld
 				.decrypt(encryptedValue) : defaultValue;
 	}
 
@@ -375,36 +306,36 @@ public class SecurePreferencesV1 implements SharedPreferences {
 	 * @return Unencrypted value of the key or the defaultValue if
 	 */
 	public String getStringUnencrypted(String key, String defaultValue) {
-		final String nonEncryptedValue = SecurePreferencesV1.sFile.getString(
-				SecurePreferencesV1.encrypt(key), null);
+		final String nonEncryptedValue = SecurePreferencesOld.sFile.getString(
+				SecurePreferencesOld.encrypt(key), null);
 		return (nonEncryptedValue != null) ? nonEncryptedValue : defaultValue;
 	}
 
 	@Override
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public Set<String> getStringSet(String key, Set<String> defaultValues) {
-		final Set<String> encryptedSet = SecurePreferencesV1.sFile.getStringSet(
-				SecurePreferencesV1.encrypt(key), null);
+		final Set<String> encryptedSet = SecurePreferencesOld.sFile.getStringSet(
+				SecurePreferencesOld.encrypt(key), null);
 		if (encryptedSet == null) {
 			return defaultValues;
 		}
 		final Set<String> decryptedSet = new HashSet<String>(
 				encryptedSet.size());
 		for (String encryptedValue : encryptedSet) {
-			decryptedSet.add(SecurePreferencesV1.decrypt(encryptedValue));
+			decryptedSet.add(SecurePreferencesOld.decrypt(encryptedValue));
 		}
 		return decryptedSet;
 	}
 
 	@Override
 	public int getInt(String key, int defaultValue) {
-		final String encryptedValue = SecurePreferencesV1.sFile.getString(
-				SecurePreferencesV1.encrypt(key), null);
+		final String encryptedValue = SecurePreferencesOld.sFile.getString(
+				SecurePreferencesOld.encrypt(key), null);
 		if (encryptedValue == null) {
 			return defaultValue;
 		}
 		try {
-			return Integer.parseInt(SecurePreferencesV1.decrypt(encryptedValue));
+			return Integer.parseInt(SecurePreferencesOld.decrypt(encryptedValue));
 		} catch (NumberFormatException e) {
 			throw new ClassCastException(e.getMessage());
 		}
@@ -412,13 +343,13 @@ public class SecurePreferencesV1 implements SharedPreferences {
 
 	@Override
 	public long getLong(String key, long defaultValue) {
-		final String encryptedValue = SecurePreferencesV1.sFile.getString(
-				SecurePreferencesV1.encrypt(key), null);
+		final String encryptedValue = SecurePreferencesOld.sFile.getString(
+				SecurePreferencesOld.encrypt(key), null);
 		if (encryptedValue == null) {
 			return defaultValue;
 		}
 		try {
-			return Long.parseLong(SecurePreferencesV1.decrypt(encryptedValue));
+			return Long.parseLong(SecurePreferencesOld.decrypt(encryptedValue));
 		} catch (NumberFormatException e) {
 			throw new ClassCastException(e.getMessage());
 		}
@@ -426,13 +357,13 @@ public class SecurePreferencesV1 implements SharedPreferences {
 
 	@Override
 	public float getFloat(String key, float defaultValue) {
-		final String encryptedValue = SecurePreferencesV1.sFile.getString(
-				SecurePreferencesV1.encrypt(key), null);
+		final String encryptedValue = SecurePreferencesOld.sFile.getString(
+				SecurePreferencesOld.encrypt(key), null);
 		if (encryptedValue == null) {
 			return defaultValue;
 		}
 		try {
-			return Float.parseFloat(SecurePreferencesV1.decrypt(encryptedValue));
+			return Float.parseFloat(SecurePreferencesOld.decrypt(encryptedValue));
 		} catch (NumberFormatException e) {
 			throw new ClassCastException(e.getMessage());
 		}
@@ -440,13 +371,13 @@ public class SecurePreferencesV1 implements SharedPreferences {
 
 	@Override
 	public boolean getBoolean(String key, boolean defaultValue) {
-		final String encryptedValue = SecurePreferencesV1.sFile.getString(
-				SecurePreferencesV1.encrypt(key), null);
+		final String encryptedValue = SecurePreferencesOld.sFile.getString(
+				SecurePreferencesOld.encrypt(key), null);
 		if (encryptedValue == null) {
 			return defaultValue;
 		}
 		try {
-			return Boolean.parseBoolean(SecurePreferencesV1
+			return Boolean.parseBoolean(SecurePreferencesOld
 					.decrypt(encryptedValue));
 		} catch (NumberFormatException e) {
 			throw new ClassCastException(e.getMessage());
@@ -455,7 +386,7 @@ public class SecurePreferencesV1 implements SharedPreferences {
 
 	@Override
 	public boolean contains(String key) {
-		return SecurePreferencesV1.sFile.contains(SecurePreferencesV1.encrypt(key));
+		return SecurePreferencesOld.sFile.contains(SecurePreferencesOld.encrypt(key));
 	}
 
 	@Override
@@ -466,9 +397,9 @@ public class SecurePreferencesV1 implements SharedPreferences {
 	/**
 	 * Wrapper for Android's {@link android.content.SharedPreferences.Editor}.
 	 * <p>
-	 * Used for modifying values in a {@link com.securepreferences.SecurePreferencesV1} object. All
+	 * Used for modifying values in a {@link SecurePreferencesOld} object. All
 	 * changes you make in an editor are batched, and not copied back to the
-	 * original {@link com.securepreferences.SecurePreferencesV1} until you call {@link #commit()} or
+	 * original {@link SecurePreferencesOld} until you call {@link #commit()} or
 	 * {@link #apply()}.
 	 */
 	public static class Editor implements SharedPreferences.Editor {
@@ -478,13 +409,13 @@ public class SecurePreferencesV1 implements SharedPreferences {
 		 * Constructor.
 		 */
 		private Editor() {
-			mEditor = SecurePreferencesV1.sFile.edit();
+			mEditor = SecurePreferencesOld.sFile.edit();
 		}
 
 		@Override
 		public SharedPreferences.Editor putString(String key, String value) {
-			mEditor.putString(SecurePreferencesV1.encrypt(key),
-					SecurePreferencesV1.encrypt(value));
+			mEditor.putString(SecurePreferencesOld.encrypt(key),
+					SecurePreferencesOld.encrypt(value));
 			return this;
 		}
 
@@ -500,7 +431,7 @@ public class SecurePreferencesV1 implements SharedPreferences {
 		 */
 		public SharedPreferences.Editor putStringNoEncrypted(String key,
 				String value) {
-			mEditor.putString(SecurePreferencesV1.encrypt(key), value);
+			mEditor.putString(SecurePreferencesOld.encrypt(key), value);
 			return this;
 		}
 
@@ -511,44 +442,44 @@ public class SecurePreferencesV1 implements SharedPreferences {
 			final Set<String> encryptedValues = new HashSet<String>(
 					values.size());
 			for (String value : values) {
-				encryptedValues.add(SecurePreferencesV1.encrypt(value));
+				encryptedValues.add(SecurePreferencesOld.encrypt(value));
 			}
-			mEditor.putStringSet(SecurePreferencesV1.encrypt(key),
+			mEditor.putStringSet(SecurePreferencesOld.encrypt(key),
 					encryptedValues);
 			return this;
 		}
 
 		@Override
 		public SharedPreferences.Editor putInt(String key, int value) {
-			mEditor.putString(SecurePreferencesV1.encrypt(key),
-					SecurePreferencesV1.encrypt(Integer.toString(value)));
+			mEditor.putString(SecurePreferencesOld.encrypt(key),
+					SecurePreferencesOld.encrypt(Integer.toString(value)));
 			return this;
 		}
 
 		@Override
 		public SharedPreferences.Editor putLong(String key, long value) {
-			mEditor.putString(SecurePreferencesV1.encrypt(key),
-					SecurePreferencesV1.encrypt(Long.toString(value)));
+			mEditor.putString(SecurePreferencesOld.encrypt(key),
+					SecurePreferencesOld.encrypt(Long.toString(value)));
 			return this;
 		}
 
 		@Override
 		public SharedPreferences.Editor putFloat(String key, float value) {
-			mEditor.putString(SecurePreferencesV1.encrypt(key),
-					SecurePreferencesV1.encrypt(Float.toString(value)));
+			mEditor.putString(SecurePreferencesOld.encrypt(key),
+					SecurePreferencesOld.encrypt(Float.toString(value)));
 			return this;
 		}
 
 		@Override
 		public SharedPreferences.Editor putBoolean(String key, boolean value) {
-			mEditor.putString(SecurePreferencesV1.encrypt(key),
-					SecurePreferencesV1.encrypt(Boolean.toString(value)));
+			mEditor.putString(SecurePreferencesOld.encrypt(key),
+					SecurePreferencesOld.encrypt(Boolean.toString(value)));
 			return this;
 		}
 
 		@Override
 		public SharedPreferences.Editor remove(String key) {
-			mEditor.remove(SecurePreferencesV1.encrypt(key));
+			mEditor.remove(SecurePreferencesOld.encrypt(key));
 			return this;
 		}
 
@@ -585,7 +516,7 @@ public class SecurePreferencesV1 implements SharedPreferences {
     @Override
     public void registerOnSharedPreferenceChangeListener(
             final OnSharedPreferenceChangeListener listener) {
-        SecurePreferencesV1.sFile
+        SecurePreferencesOld.sFile
                 .registerOnSharedPreferenceChangeListener(listener);
     }
 
@@ -621,7 +552,7 @@ public class SecurePreferencesV1 implements SharedPreferences {
                     }
                 };
         sOnSharedPreferenceChangeListeners.put(listener, secureListener);
-        SecurePreferencesV1.sFile
+        SecurePreferencesOld.sFile
                 .registerOnSharedPreferenceChangeListener(secureListener);
     }
 
@@ -631,10 +562,10 @@ public class SecurePreferencesV1 implements SharedPreferences {
         if(sOnSharedPreferenceChangeListeners.containsKey(listener)) {
             OnSharedPreferenceChangeListener secureListener =
                     sOnSharedPreferenceChangeListeners.remove(listener);
-            SecurePreferencesV1.sFile
+            SecurePreferencesOld.sFile
                     .unregisterOnSharedPreferenceChangeListener(secureListener);
         } else {
-            SecurePreferencesV1.sFile
+            SecurePreferencesOld.sFile
                     .unregisterOnSharedPreferenceChangeListener(listener);
         }
 	}
