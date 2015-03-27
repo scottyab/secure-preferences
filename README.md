@@ -3,58 +3,103 @@ Secure-preferences
 
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-secure--preferences-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/362)
 
-This is Android Shared preference wrapper that encrypts the keys and values of Shared Preferences using 256-bit AES. **The key is stored in the perferences and so can be read and extracted by root user.** Keys and values are encrypted and base64 encooded before storing into prefs. 
+This is Android Shared preference wrapper that encrypts the values of Shared Preferences using AES 128, CBC, and PKCS5 padding with integrity checking in the form of a SHA 256 hash. Each key is stored as a one way HA 256 hash. Both keys and values are base64 encoded before storing into prefs xml file. **By default the generated key is stored in the backing perferences file and so can be read and extracted by root user.** Recommend use the user password generated option as added in v0.1.0.
 
-The sample app is availbile on [playstore](https://play.google.com/store/apps/details?id=com.securepreferences.sample)
+The sample app is available on [playstore](https://play.google.com/store/apps/details?id=com.securepreferences.sample)
 
-Much of the original code is from Daniel Abraham article on [codeproject](http://www.codeproject.com/Articles/549119/Encryption-Wrapper-for-Android-SharedPreferences). This project was created and shared on Github with his permission. 
-
-![screenshot](https://raw.github.com/scottyab/secure-preferences/master/docs/images/ss_frame_secure_pref.png "Sample app Screenshot")
+<img src="https://raw.github.com/scottyab/secure-preferences/master/docs/images/ss_frame_secure_pref.png" height="400" alt="Sample app Screenshot" />
  
 
+##New release v0.1.0
+This release is a major refactor of the guts of secure prefs, which is *Not backwards compatible* yet with older versions. So if you have an existing app using this don't upgrade. I'll be looking to add migration into a later release.
+
+#Usage
+
 ##Dependency
+
+Maven central is the prefered way:
+
 ```java
 	dependencies {
     	compile 'com.scottyab:secure-preferences-lib:0.0.4'
 	}
 ```
 
-##Release Notes:
-0.0.5 (coming soon)
-* default AES to CBC mode for increased security
+Or clone this repo and add the library as a Android library project/module.
 
-0.0.4
-* Gralde support thanks @yelinaung 
-* Fix for OnPreferenceChanged listener @richardleggett 
+#Examples
+This will use the default shared pref file
 
-0.0.3
+```java
+        SharedPreferences prefs = new SecurePreferences(context);     
+```
 
-* Added test Project
-* Updated sample ready for playstore upload 
+##Custom pref file
+You can define a seperate file for encrpyted preferences. 
 
-0.0.2
+```java
+        SharedPreferences prefs = new SecurePreferences(context, null, "my_custom_prefs.xml");
+```
 
-* Added methods to get/set strings un-encrypted 
-* Added backup PBKDF function in case PBKDF2WithHmacSHA1 not supported
-* Refactored code to make it easier to change the AES mode and PBKDF function. 
-* Increased iterations of PBKDF from 1000 to 2000. 
 
-0.0.1 
+##User password
+Passing in a password to the SecurePreferences contructor means the key is generated at runtime and *not* stored in the backing pref file. 
 
-* Initial import to github I've modified the project structure. 
-* Included the Android base64 class so library can be used by Android 2.1+. 
-* Enhanced the sample project dumps current prefs to illustrate the fact they are stored encrypted and Base64 encoded. 
+```java
+        SharedPreferences prefs = new SecurePreferences(context, "userpassword", "my_user_prefs.xml");
+```
+
+##Changing Password
+
+```java
+        SecurePreferences securePrefs = new SecurePreferences(context, "userpassword", "my_user_prefs.xml");
+
+        
+```
+
+
+#What does the data look like?
+
+SharedPreferences keys and values are stored as simple map in an XML file.  
+
+##XML using Standard Android SharedPreferences
+
+
+```xml
+	<map>
+    <int name="timeout" value="500" />
+    <boolean name="is_logged_in" value="true" />
+</map>
+```
+
+##XML with SecurePreferences
+
+
+```xml
+	<map>
+    <string name="TuwbBU0IrAyL9znGBJ87uEi7pW0FwYwX8SZiiKnD2VZ7">
+        pD2UhS2K2MNjWm8KzpFrag==:MWm7NgaEhvaxAvA9wASUl0HUHCVBWkn3c2T1WoSAE/g=rroijgeWEGRDFSS/hg
+    </string>
+    <string name="8lqCQqn73Uo84Rj">k73tlfVNYsPshll19ztma7U">
+        pD2UhS2K2MNjWm8KzpFrag==:MWm7NgaEhvaxAvA9wASUl0HUHCVBWkn3c2T1WoSAE/g=:jWm8KzUl0HUHCVBWkn3c2T1WoSAE/g=
+    </string>
+</map>
+```
 
 
 ###Disclaimer
-It's not bullet proof security (in fact it's more like obfuscation of the perferences) but it's a quick win for incrementally making your android app more secure. For instance it'll stop users on rooted devices easily modifiying your app's shared prefs. 
+By default it's not bullet proof security (in fact it's more like obfuscation of the preferences) but it's a quick win for incrementally making your android app more secure. For instance it'll stop users on rooted devices easily modifiying your app's shared prefs.
+*Recommend using the user password based prefs as introducted in v0.1.0.*
 
 
 ###Contributing 
-Please do send me pull requests, but also bugs and enhancement requests are welcome. Although no guarantees on when I can review them.  
+Please do send me pull requests, but also bugs, issues and enhancement requests are welcome please add an issue.
 
 
 ###Licence 
+
+Much of the original code is from Daniel Abraham article on [codeproject](http://www.codeproject.com/Articles/549119/Encryption-Wrapper-for-Android-SharedPreferences). This project was created and shared on Github with his permission. 
+
 Apache License, Version 2.0
 
 
@@ -72,3 +117,6 @@ Apache License, Version 2.0
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+
+Lock icon for sample app licenced under creativecommons created by Sam Smith via [thenounproject.com](http://thenounproject.com/term/lock/5704/)
