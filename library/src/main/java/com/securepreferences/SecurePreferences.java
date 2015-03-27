@@ -45,7 +45,7 @@ import java.util.Set;
  * <p>
  * This class provides important - but nevertheless imperfect - protection
  * against simple attacks by casual snoopers. It is crucial to remember that
- * even encrypted data may still be susceptible to attacks, especially on rooted
+ * even encrypted data may still be susceptible to attacks, especially on rooted devices
  * <p>
  *
  * TODO: handle migration of keys
@@ -53,12 +53,6 @@ import java.util.Set;
  *
  */
 public class SecurePreferences implements SharedPreferences {
-
-    /**
-     * Used to handle updates to the way the secure
-     */
-    private static final int VERSION = 1;
-    private static final String VERSION_PREF_KEY = "SECURE_PREF_VERSION_KEY";
 
     private static SharedPreferences sFile;
     private static AesCbcWithIntegrity.SecretKeys sKeys;
@@ -72,60 +66,43 @@ public class SecurePreferences implements SharedPreferences {
 
     private static final String TAG = SecurePreferences.class.getName();
 
-
     /**
-     * Check the internal version with the stored version, to see if upgrade needed.
-     * @return
-     */
-    private boolean isUpgradeNeeded(){
-        int currentVersion = SecurePreferences.sFile.getInt(VERSION_PREF_KEY, 0);
-        if (currentVersion<VERSION){
-            return true;
-        }
-        return false;
-    }
-
-    private void upgradePrefsAndRenewKeys(){
-        int currentVersion = SecurePreferences.sFile.getInt(VERSION_PREF_KEY, 0);
-        if(currentVersion == 0 && VERSION==1){
-
-            //get the current key name and key
-
-            //gen new key name
-
-            //gen new key
-
-            Map<String, ?> allOfThePrefs = SecurePreferences.sFile.getAll();
-            Iterator<String> keys = allOfThePrefs.keySet().iterator();
-            for (int i = 0; keys.hasNext(); i++) {
-                String prefKey = keys.next();
-                Object prefValue = allOfThePrefs.get(prefKey);
-                if(prefValue instanceof String){
-                    //all the encrypted values will be Strings
-                    final String prefValueString = (String)prefValue;
-
-                    final String plainTextPrefKey = decrypt(prefKey);
-                    final String plainTextPrefValue = decrypt(prefValueString);
-
-
-
-                }
-            }
-
-
-
-
-        }
-    }
-
-
-    /**
-     * This assumed the SecurePrefs is
+     * Cycle through the unencrypt all the current prefs to mem cache, clear, then encypt with key generated from new password
      * @param newPassword
      */
-    public void handlePasswordChange(String newPassword){
-        //TODO:
+    public void handlePasswordChange(String newPassword, Context context) throws GeneralSecurityException {
+
+        AesCbcWithIntegrity.SecretKeys newKey= AesCbcWithIntegrity.generateKeyFromPassword(newPassword, getDeviceSerialNumber(context));
+
+        Map<String, ?> allOfThePrefs = SecurePreferences.sFile.getAll();
+        Map<String, String> unencryptedPrefs = new HashMap<String, String>(allOfThePrefs.size());
+        Iterator<String> keys = allOfThePrefs.keySet().iterator();
+        while(keys.hasNext()) {
+            String prefKey = keys.next();
+            Object prefValue = allOfThePrefs.get(prefKey);
+            if(prefValue instanceof String){
+                //all the encrypted values will be Strings
+                final String prefValueString = (String)prefValue;
+                final String plainTextPrefValue = decrypt(prefValueString);
+                unencryptedPrefs.put(prefKey, plainTextPrefValue);
+            }
+        }
+        destoryKeys();
+        SharedPreferences.Editor editor = edit();
+        editor.clear();
+        editor.commit();
+
+        sKeys = newKey;
+        Iterator<String> unencryptedPrefsKeys = allOfThePrefs.keySet().iterator();
+        while (unencryptedPrefsKeys.hasNext()) {
+            String prefKey = unencryptedPrefsKeys.next();
+            String prefPlainText = unencryptedPrefs.get(prefKey);
+            editor.putString(prefKey, encrypt(prefPlainText));
+        }
+        editor.commit();
     }
+
+
 
 
     /**
@@ -266,7 +243,7 @@ public class SecurePreferences implements SharedPreferences {
      * @param prefKey
      * @return
      */
-    private static String hashPrefKey(String prefKey)  {
+    public static String hashPrefKey(String prefKey)  {
         final MessageDigest digest;
         try {
             digest = MessageDigest.getInstance("SHA-256");
@@ -308,6 +285,11 @@ public class SecurePreferences implements SharedPreferences {
         return null;
     }
 
+    /**
+     *
+     * @param ciphertext
+     * @return decrypted plain text, unless decryption fails, in which case null
+     */
     private static String decrypt(final String ciphertext) {
         if (TextUtils.isEmpty(ciphertext)) {
             return ciphertext;
@@ -328,21 +310,35 @@ public class SecurePreferences implements SharedPreferences {
         return null;
     }
 
+    /**
+     *
+     * @return map of with decrypted values (excluding the key if present)
+     */
 	@Override
 	public Map<String, String> getAll() {
+        //wont be null as per http://androidxref.com/5.1.0_r1/xref/frameworks/base/core/java/android/app/SharedPreferencesImpl.java
 		final Map<String, ?> encryptedMap = SecurePreferences.sFile.getAll();
 		final Map<String, String> decryptedMap = new HashMap<String, String>(
 				encryptedMap.size());
-		for (Entry<String, ?> entry : encryptedMap.entrySet()) {
-			try {
-                //they should all be strings
-				decryptedMap.put(entry.getKey(),
-						SecurePreferences.decrypt(entry.getValue().toString()));
-			} catch (Exception e) {
-				// Ignore unencrypted key/value pairs
-			}
-		}
-		return decryptedMap;
+            for (Entry<String, ?> entry : encryptedMap.entrySet()) {
+                try {
+                    Object cipherText = entry.getValue();
+                    //don't include the key
+                    if(cipherText!=null && !cipherText.equals(sKeys.toString())){
+                        //the prefs should all be strings
+                        decryptedMap.put(entry.getKey(),
+                                SecurePreferences.decrypt(cipherText.toString()));
+                    }
+                } catch (Exception e) {
+                    if (sLoggingEnabled) {
+                        Log.w(TAG, "error during getAll", e);
+                    }
+                    // Ignore issues that unencrypted values and use instead raw cipher text string
+                    decryptedMap.put(entry.getKey(),
+                            entry.getValue().toString());
+                }
+            }
+            return decryptedMap;
 	}
 
 	@Override
