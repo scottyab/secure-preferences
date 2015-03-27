@@ -1,8 +1,10 @@
 package com.securepreferences;
 
 import java.io.File;
+import java.security.GeneralSecurityException;
 import java.util.Map;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
@@ -15,6 +17,7 @@ public class TestSecurePreferences extends AndroidTestCase {
     final static String DEFAULT_VALUE = "testingvaluebar";
 
     public static final String TAG = "TestSecurePreferences";
+
     public static final String MY_CUSTOM_PREFS = "my_custom_prefs";
     public static final String USER_PREFS_WITH_PASSWORD = "user_prefs_with_password";
 
@@ -23,16 +26,6 @@ public class TestSecurePreferences extends AndroidTestCase {
         super.setUp();
         SecurePreferences.setLoggingEnabled(true);
     }
-
-    @Override
-	protected void tearDown() throws Exception {
-		SecurePreferences securePrefs = new SecurePreferences(mContext);
-		Editor edit = securePrefs.edit();
-		edit.clear();
-		edit.commit();
-
-		super.tearDown();
-	}
 
     private void deletePrefFile(String prefFileName) {
         File f = getContext().getDatabasePath(prefFileName);
@@ -47,40 +40,82 @@ public class TestSecurePreferences extends AndroidTestCase {
     }
 
     public void testKeyGenerated() {
-		SecurePreferences securePrefs = new SecurePreferences(mContext);
+        //both use the default prefs file
+        SecurePreferences securePrefs = new SecurePreferences(mContext);
+        SharedPreferences normalPrefs = PreferenceManager
+                .getDefaultSharedPreferences(mContext);
 
-		Map<String, String> prefs = securePrefs.getAll();
+        Map<String, String> allOfTheSecurePrefs = securePrefs.getAll();
+        Map<String, ?> allOfTheNormalPrefs = normalPrefs.getAll();
 
-		assertFalse(
-				"securePrefs should contain at least one entry of the enc key",
-				prefs.isEmpty());
-	}
+        assertTrue(
+                "securePrefs should be empty as the key is excluded from the getAll map",
+                allOfTheSecurePrefs.isEmpty());
+
+        assertTrue(
+                "The normal prefs version should contain a single entry the key",
+                allOfTheNormalPrefs.size() == 1);
+
+        clearPrefs(securePrefs);
+    }
 
     public void testKeyGeneratedCustomPrefFile() {
+        //fails?
         SecurePreferences securePrefs = new SecurePreferences(mContext, null, MY_CUSTOM_PREFS);
 
-        Map<String, String> prefs = securePrefs.getAll();
+        SharedPreferences normalPrefs = getContext().getSharedPreferences(MY_CUSTOM_PREFS, Context.MODE_PRIVATE);
 
-        assertFalse(
-                "securePrefs should contain at least one entry of the enc key",
-                prefs.isEmpty());
+        Map<String, String> allOfTheSecurePrefs = securePrefs.getAll();
+        Map<String, ?> allOfTheNormalPrefs = normalPrefs.getAll();
+
+        assertTrue(
+                "securePrefs should be empty as the key is excluded from the getAll map",
+                allOfTheSecurePrefs.isEmpty());
+
+        assertTrue(
+                "The normal prefs version should contain a single entry the key",
+                allOfTheNormalPrefs.size() == 1);
+
         deletePrefFile(MY_CUSTOM_PREFS);
-
     }
 
 
     public void testKeyGeneratedFromUserPassword() {
         SecurePreferences securePrefs = new SecurePreferences(mContext, "password", USER_PREFS_WITH_PASSWORD);
 
-        Map<String, String> prefs = securePrefs.getAll();
+        SharedPreferences normalPrefs = getContext().getSharedPreferences(USER_PREFS_WITH_PASSWORD, Context.MODE_PRIVATE);
+
+        Map<String, ?> allThePrefs = normalPrefs.getAll();
 
         assertTrue(
-                "securePrefs should not contain a key as it's a generated via user password.",
-                prefs.isEmpty());
+                "the securePrefs should not contain any enteries as the key is generated via user password.",
+                allThePrefs.isEmpty());
 
         deletePrefFile(USER_PREFS_WITH_PASSWORD);
     }
 
+
+    public void testChangeUserPassword() {
+        SecurePreferences securePrefs = new SecurePreferences(mContext, "password", USER_PREFS_WITH_PASSWORD);
+        Editor editor = securePrefs.edit();
+        final String key = "pwchgfoo";
+        final String value = "pwchgbar";
+        editor.putString(key,value);
+        editor.commit();
+
+        String cipherText = securePrefs.getUnencryptedString(key, null);
+        try {
+            securePrefs.handlePasswordChange("newPassword", getContext());
+        } catch (GeneralSecurityException e) {
+            fail("error changing passwd: " + e.getMessage());
+        }
+
+        String cipherTextFromNewPassword = securePrefs.getUnencryptedString(key, null);
+
+        assertNotSame("The two cipher texts should not be the same", cipherText, cipherTextFromNewPassword);
+
+        deletePrefFile(USER_PREFS_WITH_PASSWORD);
+    }
 
 	public void testSaveString() {
 		final String key = "foo";
@@ -92,9 +127,37 @@ public class TestSecurePreferences extends AndroidTestCase {
 
 		String retrievedValue = securePrefs.getString(key, null);
 		assertEquals(value, retrievedValue);
+
+        clearPrefs(securePrefs);
 	}
 
-	public void testSaveFloat() {
+    public void testSaveStringInCustomPref() {
+        final String key = "customfoo";
+        final String value = "custombar";
+
+        SecurePreferences securePrefs = new SecurePreferences(mContext, null, MY_CUSTOM_PREFS);
+        Editor edit = securePrefs.edit();
+        edit.putString(key, value);
+        edit.commit();
+
+        String retrievedValue = securePrefs.getString(key, null);
+        assertEquals(value, retrievedValue);
+
+        clearPrefs(securePrefs);
+    }
+
+    /**
+     * tear down
+     * @param prefs
+     */
+    private void clearPrefs(SharedPreferences prefs) {
+        Editor edit = prefs.edit();
+        //tear down
+        edit.clear();
+        edit.commit();
+    }
+
+    public void testSaveFloat() {
 		final String key = "foo";
 		final float value = 0.99f;
 		SharedPreferences securePrefs = new SecurePreferences(mContext);
@@ -105,6 +168,8 @@ public class TestSecurePreferences extends AndroidTestCase {
 		float retrievedValue = securePrefs.getFloat(key, -1);
 
 		assertEquals(value, retrievedValue);
+
+        clearPrefs(securePrefs);
 	}
 
 	public void testSaveUnencrpyted() {
@@ -112,20 +177,21 @@ public class TestSecurePreferences extends AndroidTestCase {
 		final String value = "bar";
 
 		SecurePreferences securePrefs = new SecurePreferences(mContext);
-		SecurePreferences.Editor secureEdit = (SecurePreferences.Editor) securePrefs
+		SecurePreferences.Editor secureEdit = securePrefs
 				.edit();
 		secureEdit.putUnencryptedString(key, value);
 		secureEdit.commit();
 
 		String retrievedValue = securePrefs.getUnencryptedString(key, null);
 		assertEquals(value, retrievedValue);
+        clearPrefs(securePrefs);
 	}
 
 	public void testKeyIsEncrpyted() {
 
 
 		SecurePreferences securePrefs = new SecurePreferences(mContext);
-		SecurePreferences.Editor secureEdit = (SecurePreferences.Editor) securePrefs
+		SecurePreferences.Editor secureEdit = securePrefs
 				.edit();
 		secureEdit.putUnencryptedString(DEFAULT_KEY, DEFAULT_VALUE);
 		secureEdit.commit();
@@ -137,6 +203,8 @@ public class TestSecurePreferences extends AndroidTestCase {
 		String retrievedValue = normalPrefs.getString(DEFAULT_KEY, null);
 
 		assertNull(DEFAULT_VALUE, retrievedValue);
+
+        clearPrefs(securePrefs);
 	}
 
     public void testDestroyKeys(){
@@ -149,10 +217,11 @@ public class TestSecurePreferences extends AndroidTestCase {
 
         try {
             String retrievedValue = securePrefs.getString(DEFAULT_KEY, null);
-            fail("Null pointer should be thrown");
+            fail("Null pointer should be thrown not retrievedValue:" + retrievedValue);
         }catch (NullPointerException e){
 
         }
+        clearPrefs(securePrefs);
     }
 
 }
