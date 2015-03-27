@@ -6,5 +6,7 @@
     <item android:id="@+id/action_github"
           android:title="@string/action_github"
           android:orderInCategory="100"
+          android:icon="@drawable/ic_action_github"
+          app:showAsAction="always"
           />
 </menu>

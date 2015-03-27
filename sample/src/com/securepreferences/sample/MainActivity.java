@@ -12,35 +12,34 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * AppIcon - http://www.iconarchive.com/show/windows-8-metro-icons-by-dakirby309/Other-Power-Lock-Metro-icon.html
- * 
+ *
  */
 package com.securepreferences.sample;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.securepreferences.SecurePreferences;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class MainActivity extends Activity {
-    private SecurePreferences mSecurePrefs;
-	private SharedPreferences mInSecurePrefs;
+public class MainActivity extends ActionBarActivity {
+    private SharedPreferences mSecurePrefs;
 
 	private TextView encValuesTextView;
 
@@ -54,11 +53,12 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		initViews();
-		initPrefs();
+
+        mSecurePrefs = App.get().getSharedPreferences();
 
 		updateEncValueDisplay();
 
-		mInSecurePrefs
+        mSecurePrefs
 				.registerOnSharedPreferenceChangeListener(new OnSharedPreferenceChangeListener() {
 					@Override
 					public void onSharedPreferenceChanged(
@@ -66,38 +66,28 @@ public class MainActivity extends Activity {
 						updateEncValueDisplay();
 					}
 				});
-
-        // listen for specific keys and receive unencrypted key name on change
-        mSecurePrefs
-                .registerOnSharedPreferenceChangeListener(new OnSharedPreferenceChangeListener() {
-                    @Override
-                    public void onSharedPreferenceChanged(
-                            SharedPreferences sharedPreferences, String key) {
-                        toast("SecurePreference changed with key: " + key);
-                    }
-                },
-                true);
 	}
 
 	private void initViews() {
 		encValuesTextView = (TextView) findViewById(R.id.fooValueEncTV);
 	}
 
-	private void initPrefs() {
-		mSecurePrefs = new SecurePreferences(this);
-		SecurePreferences.setLoggingEnabled(true);
-		mInSecurePrefs = PreferenceManager
-				.getDefaultSharedPreferences(getApplicationContext());
-	}
+
 
 	/**
 	 * this is just for demo purposes so you can see the dumped content of the
 	 * actual shared prefs file without needing a rooted device
 	 */
 	private void updateEncValueDisplay() {
-		Map<String, ?> all = mInSecurePrefs.getAll();
-		if (!all.isEmpty()) {
-			StringBuilder builder = new StringBuilder();
+		Map<String, ?> all = mSecurePrefs.getAll();
+        StringBuilder builder = new StringBuilder();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss");
+        Date resultdate = new Date(System.currentTimeMillis());
+		builder.append("updated: " +sdf.format(resultdate) + "\n");
+
+        if (!all.isEmpty()) {
+
 			Set<String> keys = all.keySet();
 			Iterator<String> it = keys.iterator();
 			while (it.hasNext()) {
@@ -109,9 +99,12 @@ public class MainActivity extends Activity {
 				}
 				builder.append("\n\n");
 			}
-			encValuesTextView.setText(builder.toString());
-		}
+		}else {
+            builder.append("\nEMPTY");
 
+        }
+
+        encValuesTextView.setText(builder.toString());
 	}
 
 	public void onGetButtonClick(View v) {
@@ -134,8 +127,6 @@ public class MainActivity extends Activity {
 
 	public void onClearAllButtonClick(View v) {
 		mSecurePrefs.edit().clear().commit();
-		mInSecurePrefs.edit().clear().commit();
-		initPrefs();
 		updateEncValueDisplay();
         toast("All secure prefs cleared");
 	}
@@ -147,13 +138,13 @@ public class MainActivity extends Activity {
     }
 
 	public void onActivityButtonClick(View v) {
-		startActivity(new Intent(this, OldPreferenceActivity.class));
+		startActivity(new Intent(this, SamplePreferenceActivity.class));
 	}
 
 	public void onFragmentButtonClick(View v) {
 		// TODO: show an example with something like unified prefs
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			startActivity(new Intent(this, NewPreferenceActivity.class));
+			startActivity(new Intent(this, ActivityWithPreferenceFragment.class));
 		} else {
 			toast("PreferenceFragment not support before Android 3.0");
 		}

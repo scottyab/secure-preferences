@@ -24,8 +24,8 @@
     <EditTextPreference
         android:title="@string/text_title"
         android:key="@string/text_key"
-        android:defaultValue="@string/text_default" />
-
+        />
+    <!-- android:defaultValue="@string/text_default" -->
     <ListPreference
         android:title="@string/list_title"
         android:key="@string/list_key"

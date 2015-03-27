@@ -4,5 +4,6 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="min_button_height">42dp</dimen>
+    <dimen name="button_vertical_margin">10dp</dimen>
 
 </resources>

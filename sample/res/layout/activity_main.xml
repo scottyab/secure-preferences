@@ -42,22 +42,31 @@
             android:orientation="horizontal" >
 
             <Button
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="@dimen/button_vertical_margin"
                 android:layout_weight="1"
                 android:minHeight="@dimen/min_button_height"
                 android:onClick="onGetButtonClick"
                 android:text="@string/get_button" />
 
             <Button
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="@dimen/button_vertical_margin"
                 android:layout_weight="1"
                 android:minHeight="@dimen/min_button_height"
                 android:onClick="onSetButtonClick"
                 android:text="@string/set_button" />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="@dimen/button_vertical_margin"
+                android:layout_weight="1"
+                android:minHeight="@dimen/min_button_height"
+                android:onClick="onRemoveButtonClick"
+                android:text="@string/remove_button" />
         </LinearLayout>
 
         <LinearLayout
@@ -68,16 +77,7 @@
             <Button
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:layout_weight="1"
-                android:minHeight="@dimen/min_button_height"
-                android:onClick="onRemoveButtonClick"
-                android:text="@string/remove_button" />
-
-            <Button
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginTop="@dimen/button_vertical_margin"
                 android:layout_weight="1"
                 android:minHeight="@dimen/min_button_height"
                 android:onClick="onClearAllButtonClick"
@@ -87,14 +87,14 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginTop="@dimen/button_vertical_margin"
             android:onClick="onActivityButtonClick"
             android:text="@string/activity_button" />
 
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginTop="@dimen/button_vertical_margin"
             android:onClick="onFragmentButtonClick"
             android:text="@string/fragment_button" />
 
