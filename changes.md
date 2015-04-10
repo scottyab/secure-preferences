@@ -1,6 +1,6 @@
 ##Release Notes:
 0.1.0
-This release is a major refactor of the guts of secure prefs, which is *Not backwards compatible* yet with older versions. So if you have an existing app using this don't upgrade. I'll be looking to add migration into a later release.
+This release is a major refactor of the guts of secure prefs, which is *Not backwards compatible* with 0.4.0 and older versions _yet!_. So if you have an existing app using this don't upgrade. I'll be looking to add migration into a later release.
 
 * uses a new and stronger [Crypto library](https://github.com/scottyab/java-aes-crypto) under the hood
 * includes PRNG fixes that effects JellyBean devices as per [google dev blog article](http://android-developers.blogspot.nl/2013/08/some-securerandom-thoughts.html)
@@ -9,11 +9,11 @@ This release is a major refactor of the guts of secure prefs, which is *Not back
 * updated sample app
 * removed test project and added tests as part of main project
 * refactored library project to standard gradle structure
-* published to maven central
+* published to maven central/added github release
 
 
 0.0.4
-* Gralde support thanks @yelinaung
+* Gradle support thanks @yelinaung
 * Fix for OnPreferenceChanged listener @richardleggett
 
 0.0.3

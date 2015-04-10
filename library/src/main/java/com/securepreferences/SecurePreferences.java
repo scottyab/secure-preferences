@@ -54,8 +54,10 @@ import java.util.Set;
  */
 public class SecurePreferences implements SharedPreferences {
 
-    private static SharedPreferences sFile;
-    private static AesCbcWithIntegrity.SecretKeys sKeys;
+    //default for testing
+    static SharedPreferences sFile;
+    static AesCbcWithIntegrity.SecretKeys sKeys;
+
     private static boolean sLoggingEnabled = false;
 
     // links user's OnSharedPreferenceChangeListener to secure OnSharedPreferenceChangeListener
@@ -134,7 +136,10 @@ public class SecurePreferences implements SharedPreferences {
                 if (keyAsString == null) {
                     sKeys = AesCbcWithIntegrity.generateKey();
                     //saving new key
-                    SecurePreferences.sFile.edit().putString(key, sKeys.toString()).commit();
+                    boolean commited = SecurePreferences.sFile.edit().putString(key, sKeys.toString()).commit();
+                    if(!commited){
+                        Log.w(TAG, "Key not committed to prefs");
+                    }
                 }else{
                     sKeys = AesCbcWithIntegrity.keys(keyAsString);
                 }
@@ -187,10 +192,11 @@ public class SecurePreferences implements SharedPreferences {
     }
 
     /**
-     * nulls in memory keys
+     * nulls in memory keys and file
      */
     public void destoryKeys(){
         sKeys=null;
+
     }
 
 

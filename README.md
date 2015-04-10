@@ -3,7 +3,7 @@ Secure-preferences
 
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-secure--preferences-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/362)
 
-This is Android Shared preference wrapper that encrypts the values of Shared Preferences using AES 128, CBC, and PKCS5 padding with integrity checking in the form of a SHA 256 hash. Each key is stored as a one way HA 256 hash. Both keys and values are base64 encoded before storing into prefs xml file. **By default the generated key is stored in the backing perferences file and so can be read and extracted by root user.** Recommend use the user password generated option as added in v0.1.0.
+This is Android Shared preference wrapper that encrypts the values of Shared Preferences using AES 128, CBC, and PKCS5 padding with integrity checking in the form of a SHA 256 hash. Each key is stored as a one way SHA 256 hash. Both keys and values are base64 encoded before storing into prefs xml file. **By default the generated key is stored in the backing preferences file and so can be read and extracted by root user.** Recommend use the user password generated option as added in v0.1.0.
 
 The sample app is available on [playstore](https://play.google.com/store/apps/details?id=com.securepreferences.sample)
 
@@ -13,11 +13,13 @@ The sample app is available on [playstore](https://play.google.com/store/apps/de
 ##New release v0.1.0
 This release is a major refactor of the guts of secure prefs, which is *Not backwards compatible* yet with older versions. So if you have an existing app using this don't upgrade. I'll be looking to add migration into a later release.
 
+[Full list of changes](changes.md)
+
 #Usage
 
 ##Dependency
 
-Maven central is the prefered way:
+Maven central is the preferred way:
 
 ```java
 	dependencies {
@@ -25,7 +27,8 @@ Maven central is the prefered way:
 	}
 ```
 
-Or clone this repo and add the library as a Android library project/module.
+###Download
+Or download the release .aar or clone this repo and add the library as a Android library project/module.
 
 #Examples
 This will use the default shared pref file
@@ -35,7 +38,7 @@ This will use the default shared pref file
 ```
 
 ##Custom pref file
-You can define a seperate file for encrpyted preferences. 
+You can define a separate file for encrypted preferences. 
 
 ```java
         SharedPreferences prefs = new SecurePreferences(context, null, "my_custom_prefs.xml");
@@ -43,7 +46,7 @@ You can define a seperate file for encrpyted preferences.
 
 
 ##User password
-Passing in a password to the SecurePreferences contructor means the key is generated at runtime and *not* stored in the backing pref file. 
+Passing in a password to the SecurePreferences constructor means the key is generated at runtime and *not* stored in the backing pref file. 
 
 ```java
         SharedPreferences prefs = new SecurePreferences(context, "userpassword", "my_user_prefs.xml");
@@ -88,8 +91,8 @@ SharedPreferences keys and values are stored as simple map in an XML file.
 
 
 ###Disclaimer
-By default it's not bullet proof security (in fact it's more like obfuscation of the preferences) but it's a quick win for incrementally making your android app more secure. For instance it'll stop users on rooted devices easily modifiying your app's shared prefs.
-*Recommend using the user password based prefs as introducted in v0.1.0.*
+By default it's not bullet proof security (in fact it's more like obfuscation of the preferences) but it's a quick win for incrementally making your android app more secure. For instance it'll stop users on rooted devices easily modifying your app's shared prefs.
+*Recommend using the user password based prefs as introduced in v0.1.0.*
 
 
 ###Contributing 
@@ -119,4 +122,4 @@ Apache License, Version 2.0
     limitations under the License.
 
 
-Lock icon for sample app licenced under creativecommons created by Sam Smith via [thenounproject.com](http://thenounproject.com/term/lock/5704/)
+The sample app Lock icon for sample app licenced under Creative Commons created by Sam Smith via [thenounproject.com](http://thenounproject.com/term/lock/5704/)
