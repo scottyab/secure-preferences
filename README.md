@@ -21,10 +21,22 @@ This release is a major refactor of the guts of secure prefs, which is *Not back
 
 Maven central is the preferred way:
 
+Note: currently v0.1.0 is dependent on snapshot of aes-crypto, this is only as I was waiting for the aes-crypto repo owner to upload to maven. Apolgies this is a bit crappy I'll sort this out for v0.1.1. 
+
 ```java
-	dependencies {
-    	compile 'com.scottyab:secure-preferences-lib:0.0.4'
-	}
+repositories {
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+}
+
+dependencies {
+    // Secured preferences
+    compile 'com.scottyab:aes-crypto:0.0.2-SNAPSHOT'
+    compile('com.scottyab:secure-preferences-lib:0.1.0') {
+        provided 'com.scottyab:aes-crypto:0.0.2-SNAPSHOT'
+    }
+}
 ```
 
 ###Download
