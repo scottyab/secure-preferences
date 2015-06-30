@@ -70,6 +70,9 @@ public class SecurePreferences implements SharedPreferences {
 
     /**
      * Cycle through the unencrypt all the current prefs to mem cache, clear, then encypt with key generated from new password
+     *
+     * Note: the pref keys will remain the same as they are SHA256 hashes.
+     *
      * @param newPassword
      */
     public void handlePasswordChange(String newPassword, Context context) throws GeneralSecurityException {
@@ -79,6 +82,7 @@ public class SecurePreferences implements SharedPreferences {
         Map<String, ?> allOfThePrefs = SecurePreferences.sFile.getAll();
         Map<String, String> unencryptedPrefs = new HashMap<String, String>(allOfThePrefs.size());
         Iterator<String> keys = allOfThePrefs.keySet().iterator();
+        //iterate through the current prefs unencrypting each one
         while(keys.hasNext()) {
             String prefKey = keys.next();
             Object prefValue = allOfThePrefs.get(prefKey);
@@ -89,12 +93,17 @@ public class SecurePreferences implements SharedPreferences {
                 unencryptedPrefs.put(prefKey, plainTextPrefValue);
             }
         }
+
+        //destory and clear the current pref file
         destoryKeys();
         SharedPreferences.Editor editor = edit();
         editor.clear();
         editor.commit();
 
+        //assign new key
         sKeys = newKey;
+
+        //iterate through the unencryptedPrefs encrypting each one with new key
         Iterator<String> unencryptedPrefsKeys = allOfThePrefs.keySet().iterator();
         while (unencryptedPrefsKeys.hasNext()) {
             String prefKey = unencryptedPrefsKeys.next();
