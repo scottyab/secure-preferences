@@ -1,4 +1,8 @@
 ##Release Notes:
+0.1.1
+* Fixed build issue referencing 'com.scottyab:aes-crypto' dependency (previous pointed to snapshot repo)
+* Minor tweek to build file so doesn't error if you don't have the sample app signing config
+
 0.1.0
 This release is a major refactor of the guts of secure prefs, which is *Not backwards compatible* with 0.4.0 and older versions _yet!_. So if you have an existing app using this don't upgrade. I'll be looking to add migration into a later release.
 
