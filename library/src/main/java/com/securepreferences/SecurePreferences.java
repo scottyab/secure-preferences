@@ -47,10 +47,9 @@ import java.util.Set;
  * against simple attacks by casual snoopers. It is crucial to remember that
  * even encrypted data may still be susceptible to attacks, especially on rooted devices
  * <p>
+ * Recommended to use with user password, in which case the key will be derived from the password and not stored in the file.
  *
- * TODO: handle migration of keys
- * TODO: handle user change password
- *
+ * TODO: Handle OnSharedPreferenceChangeListener
  */
 public class SecurePreferences implements SharedPreferences {
 
