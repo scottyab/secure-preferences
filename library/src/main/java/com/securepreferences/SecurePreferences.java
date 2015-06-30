@@ -102,9 +102,8 @@ public class SecurePreferences implements SharedPreferences {
 
         //assign new key
         sKeys = newKey;
-
         //iterate through the unencryptedPrefs encrypting each one with new key
-        Iterator<String> unencryptedPrefsKeys = allOfThePrefs.keySet().iterator();
+        Iterator<String> unencryptedPrefsKeys = unencryptedPrefs.keySet().iterator();
         while (unencryptedPrefsKeys.hasNext()) {
             String prefKey = unencryptedPrefsKeys.next();
             String prefPlainText = unencryptedPrefs.get(prefKey);
