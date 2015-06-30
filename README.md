@@ -48,7 +48,7 @@ You can define a separate file for encrypted preferences.
 
 
 ##User password - (recommended)
-Passing in a password to the SecurePreferences constructor means the key is generated at runtime and *not* stored in the backing pref file. 
+Using a password that the user types in that isn't stored elsewhere in the app passed to the SecurePreferences constructor means the key is generated at runtime and *not* stored in the backing pref file.
 
 ```java
         SharedPreferences prefs = new SecurePreferences(context, "userpassword", "my_user_prefs.xml");
@@ -58,14 +58,14 @@ Passing in a password to the SecurePreferences constructor means the key is gene
 
 ```java
         SecurePreferences securePrefs = new SecurePreferences(context, "userpassword", "my_user_prefs.xml");
-
+        securePrefs.handlePasswordChange("newPassword", context);
         
 ```
 
 
 #What does the data look like?
 
-SharedPreferences keys and values are stored as simple map in an XML file.  
+SharedPreferences keys and values are stored as simple map in an XML file.  You could also use a rooted device and an app like [cheatdroid](https://play.google.com/store/apps/details?id=com.felixheller.sharedprefseditor&hl=en_GB)
 
 ##XML using Standard Android SharedPreferences
 
