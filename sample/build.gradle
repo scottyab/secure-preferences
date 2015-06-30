@@ -8,12 +8,12 @@ repositories {
 }
 
 android {
-    compileSdkVersion 21
+    compileSdkVersion 22
     buildToolsVersion '21.1.2'
 
     defaultConfig {
         minSdkVersion 10
-        targetSdkVersion 21
+        targetSdkVersion 22
         versionCode 3
         versionName "1.0"
     }
@@ -30,9 +30,44 @@ android {
         }
     }
 
+    //check if the keystore details are defined in gradle.properties (this is so the key is not in github)
+    if(project.hasProperty("SECURE_PREF_SAMPLE_STORE")) {
+        signingConfigs {
+            //from gradle.properties
+            release {
+                storeFile file(SECURE_PREF_SAMPLE_STORE)
+                keyAlias SECURE_PREF_SAMPLE_KEY
+                storePassword SECURE_PREF_SAMPLE_STORE_PASS
+                keyPassword SECURE_PREF_SAMPLE_KEY_PASS
+            }
+        }
+    }
+
+
+
+    buildTypes {
+        debug{
+            applicationIdSuffix ".debug"
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+        }
+
+        release {
+            minifyEnabled false
+            if(project.hasProperty("SECURE_PREF_SAMPLE_STORE")) {
+                signingConfig signingConfigs.release
+            }
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+        }
+    }
+
+
     dependencies {
-        compile 'com.android.support:appcompat-v7:21.0.3'
+        compile 'com.android.support:appcompat-v7:22.2.0'
         compile fileTree(dir: 'libs', include: '*.jar')
-        compile project(':library')
+
+        //snapshot
+        compile('com.scottyab:secure-preferences-lib:0.1.1-SNAPSHOT')
+        //compile project(':library')
     }
 }
