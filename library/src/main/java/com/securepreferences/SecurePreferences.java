@@ -95,7 +95,7 @@ public class SecurePreferences implements SharedPreferences {
         editor.commit();
 
         sKeys = newKey;
-        Iterator<String> unencryptedPrefsKeys = allOfThePrefs.keySet().iterator();
+        Iterator<String> unencryptedPrefsKeys = unencryptedPrefs.keySet().iterator();
         while (unencryptedPrefsKeys.hasNext()) {
             String prefKey = unencryptedPrefsKeys.next();
             String prefPlainText = unencryptedPrefs.get(prefKey);
