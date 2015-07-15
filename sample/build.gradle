@@ -66,8 +66,9 @@ android {
         compile 'com.android.support:appcompat-v7:22.2.0'
         compile fileTree(dir: 'libs', include: '*.jar')
 
+        compile 'com.scottyab:secure-preferences-lib:0.1.1'
         //snapshot
-        compile('com.scottyab:secure-preferences-lib:0.1.1-SNAPSHOT')
+        //compile('com.scottyab:secure-preferences-lib:0.1.1-SNAPSHOT')
         //compile project(':library')
     }
 }

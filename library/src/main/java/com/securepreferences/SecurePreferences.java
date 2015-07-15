@@ -252,9 +252,9 @@ public class SecurePreferences implements SharedPreferences {
 
 
     /**
-     * The Pref keys must be same each time so we're using a hash to obsurce the stored value
+     * The Pref keys must be same each time so we're using a hash to obscure the stored value
      * @param prefKey
-     * @return
+     * @return SHA-256 Hash of the preference key
      */
     public static String hashPrefKey(String prefKey)  {
         final MessageDigest digest;
