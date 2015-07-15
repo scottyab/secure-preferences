@@ -5,12 +5,16 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.test.AndroidTestCase;
 import android.util.Log;
@@ -119,6 +123,29 @@ public class TestSecurePreferences extends AndroidTestCase {
 
     }
 
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public void testSaveStringSet() {
+
+        final String key = "fooString";
+        final String value = "bar";
+        final String value2 = "bar2";
+        final String value3 = "bar3";
+
+        Set<String> mySet = new HashSet<String>();
+        mySet.add(value);
+        mySet.add(value2);
+        mySet.add(value3);
+
+        SharedPreferences securePrefs = new SecurePreferences(getContext());
+        Editor edit = securePrefs.edit();
+        edit.putStringSet(key, mySet);
+        edit.commit();
+
+        Set<String> retrievedSet = securePrefs.getStringSet(key, null);
+        assertEquals(mySet, retrievedSet);
+
+    }
 
 	public void testSaveString() {
 
