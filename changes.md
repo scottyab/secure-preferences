@@ -1,4 +1,10 @@
 ##Release Notes:
+0.1.2
+* #22 Internal changed to local reference to shared pref file and keys from static, as this made it impossible to have multiple secure preference files.
+* #15 fixed typos, specifically `destroyKeys()`
+* New constructor where you can supply your own keys to aid with issue #18.
+* Additional unit tests
+
 0.1.1
 * Fixed build issue referencing 'com.scottyab:aes-crypto' dependency (previous pointed to snapshot repo)
 * Minor tweek to build file so doesn't error if you don't have the sample app signing config
