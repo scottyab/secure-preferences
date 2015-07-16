@@ -11,10 +11,21 @@ android {
         targetSdkVersion 21
         versionCode versionCode
         versionName version
+
+        testApplicationId "com.securepreferences.test"
+        testInstrumentationRunner "android.test.InstrumentationTestRunner"
     }
 
     dependencies {
         compile 'com.scottyab:aes-crypto:0.0.2'
+    }
+
+
+
+    testOptions.unitTests.all {
+        testLogging {
+            events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
+        }
     }
 
     apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'

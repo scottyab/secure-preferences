@@ -1,4 +1,4 @@
-package com.securepreferences;
+package com.securepreferences.test;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,6 +18,8 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.test.AndroidTestCase;
 import android.util.Log;
+
+import com.securepreferences.SecurePreferences;
 
 public class TestSecurePreferences extends AndroidTestCase {
 
@@ -53,8 +55,8 @@ public class TestSecurePreferences extends AndroidTestCase {
         super.tearDown();
 
 
-        SecurePreferences.sKeys=null;
-        SecurePreferences.sFile=null;
+        //SecurePreferences.sKeys=null;
+        //SecurePreferences.sFile=null;
         //clear down all the files that may of been created
         deletePrefFile(USER_PREFS_WITH_PASSWORD);
         deletePrefFile(DEFAULT_PREFS_FILE_NAME);
@@ -80,6 +82,8 @@ public class TestSecurePreferences extends AndroidTestCase {
 
         //clean up here as pref file created for each test
         deletePrefFile(prefFileName);
+
+        securePrefs.destoryKeys();
     }
 
 
@@ -102,6 +106,7 @@ public class TestSecurePreferences extends AndroidTestCase {
 
         //clean up here as pref file created for each test
         deletePrefFile(prefFileName);
+        securePrefs.destoryKeys();
     }
 
     /**
@@ -137,7 +142,7 @@ public class TestSecurePreferences extends AndroidTestCase {
         mySet.add(value2);
         mySet.add(value3);
 
-        SharedPreferences securePrefs = new SecurePreferences(getContext());
+        SecurePreferences securePrefs = new SecurePreferences(getContext());
         Editor edit = securePrefs.edit();
         edit.putStringSet(key, mySet);
         edit.commit();
@@ -145,6 +150,7 @@ public class TestSecurePreferences extends AndroidTestCase {
         Set<String> retrievedSet = securePrefs.getStringSet(key, null);
         assertEquals(mySet, retrievedSet);
 
+        securePrefs.destoryKeys();
     }
 
 	public void testSaveString() {
