@@ -54,9 +54,6 @@ public class TestSecurePreferences extends AndroidTestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
 
-
-        //SecurePreferences.sKeys=null;
-        //SecurePreferences.sFile=null;
         //clear down all the files that may of been created
         deletePrefFile(USER_PREFS_WITH_PASSWORD);
         deletePrefFile(DEFAULT_PREFS_FILE_NAME);
@@ -83,7 +80,6 @@ public class TestSecurePreferences extends AndroidTestCase {
         //clean up here as pref file created for each test
         deletePrefFile(prefFileName);
 
-        securePrefs.destoryKeys();
     }
 
 
@@ -106,7 +102,6 @@ public class TestSecurePreferences extends AndroidTestCase {
 
         //clean up here as pref file created for each test
         deletePrefFile(prefFileName);
-        securePrefs.destoryKeys();
     }
 
     /**
@@ -150,7 +145,6 @@ public class TestSecurePreferences extends AndroidTestCase {
         Set<String> retrievedSet = securePrefs.getStringSet(key, null);
         assertEquals(mySet, retrievedSet);
 
-        securePrefs.destoryKeys();
     }
 
 	public void testSaveString() {
@@ -248,7 +242,7 @@ public class TestSecurePreferences extends AndroidTestCase {
         edit.putString(DEFAULT_KEY, DEFAULT_VALUE);
         edit.commit();
 
-        securePrefs.destoryKeys();
+        securePrefs.destroyKeys();
 
         try {
             String retrievedValue = securePrefs.getString(DEFAULT_KEY, null);

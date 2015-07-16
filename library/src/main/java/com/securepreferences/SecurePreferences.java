@@ -96,8 +96,8 @@ public class SecurePreferences implements SharedPreferences {
             }
         }
 
-        //destory and clear the current pref file
-        destoryKeys();
+        //destroy and clear the current pref file
+        destroyKeys();
         SharedPreferences.Editor editor = edit();
         editor.clear();
         editor.commit();
@@ -127,7 +127,7 @@ public class SecurePreferences implements SharedPreferences {
     /**
      *
      * @param context
-     * @param password user password/code used to generate encrpytion key.
+     * @param password user password/code used to generate encryption key.
      * @param sharedPrefFilename name of the shared pref file. If null use the default shared prefs
      */
     public SecurePreferences(Context context, final String password, final String sharedPrefFilename) {
@@ -144,8 +144,8 @@ public class SecurePreferences implements SharedPreferences {
                 if (keyAsString == null) {
                     keys = AesCbcWithIntegrity.generateKey();
                     //saving new key
-                    boolean commited = sharedPreferences.edit().putString(key, keys.toString()).commit();
-                    if(!commited){
+                    boolean committed = sharedPreferences.edit().putString(key, keys.toString()).commit();
+                    if(!committed){
                         Log.w(TAG, "Key not committed to prefs");
                     }
                 }else{
@@ -202,7 +202,7 @@ public class SecurePreferences implements SharedPreferences {
     /**
      * nulls in memory keys
      */
-    public void destoryKeys(){
+    public void destroyKeys(){
         keys =null;
     }
 
