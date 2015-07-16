@@ -1,15 +1,5 @@
 package com.securepreferences.test;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -20,6 +10,17 @@ import android.test.AndroidTestCase;
 import android.util.Log;
 
 import com.securepreferences.SecurePreferences;
+import com.tozny.crypto.android.AesCbcWithIntegrity;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 public class TestSecurePreferences extends AndroidTestCase {
 
@@ -63,7 +64,7 @@ public class TestSecurePreferences extends AndroidTestCase {
     public void testKeyGeneratedCustomPrefFile() {
         final String prefFileName = generatePrefFileNameForTest();
 
-        SecurePreferences securePrefs = new SecurePreferences(getContext(), null, prefFileName);
+        SecurePreferences securePrefs = new SecurePreferences(getContext(), "", prefFileName);
         SharedPreferences normalPrefs = getContext().getSharedPreferences(prefFileName, Context.MODE_PRIVATE);
 
         Map<String, String> allOfTheSecurePrefs = securePrefs.getAll();
@@ -165,7 +166,7 @@ public class TestSecurePreferences extends AndroidTestCase {
         final String key = "customfoo";
         final String value = "custombar";
 
-        SecurePreferences securePrefs = new SecurePreferences(getContext(), null, MY_CUSTOM_PREFS);
+        SecurePreferences securePrefs = new SecurePreferences(getContext(), "", MY_CUSTOM_PREFS);
         Editor edit = securePrefs.edit();
         edit.putString(key, value);
         edit.commit();
@@ -252,6 +253,26 @@ public class TestSecurePreferences extends AndroidTestCase {
         }
     }
 
+    public void testSupplyOwnKeys() {
+        try {
+            AesCbcWithIntegrity.SecretKeys mykeys = AesCbcWithIntegrity.generateKey();
+
+            SecurePreferences securePrefs = new SecurePreferences(getContext(), mykeys, "my-key-file");
+            Editor edit = securePrefs.edit();
+            edit.putString(DEFAULT_KEY, DEFAULT_VALUE);
+            edit.commit();
+
+            String retrievedValue = securePrefs.getString(DEFAULT_KEY, null);
+
+            assertEquals(DEFAULT_VALUE, retrievedValue);
+
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+            fail("Error generating a key");
+        }
+    }
+
+
     public void testChangeUserPassword() {
         SecurePreferences securePrefs = new SecurePreferences(getContext(), "myfirstpassword", USER_PREFS_WITH_PASSWORD);
         Editor editor = securePrefs.edit();
@@ -296,7 +317,6 @@ public class TestSecurePreferences extends AndroidTestCase {
         }
         return false;
     }
-
 
 
     private String generatePrefFileNameForTest(){

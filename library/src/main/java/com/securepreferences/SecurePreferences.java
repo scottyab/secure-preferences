@@ -69,74 +69,48 @@ public class SecurePreferences implements SharedPreferences {
 
     private static final String TAG = SecurePreferences.class.getName();
 
-    /**
-     * Cycle through the unencrypt all the current prefs to mem cache, clear, then encypt with key generated from new password.
-     * This method can be used if switching from the generated key to a key derived from user password
-     *
-     * Note: the pref keys will remain the same as they are SHA256 hashes.
-     *
-     * @param newPassword
-     */
-    public void handlePasswordChange(String newPassword, Context context) throws GeneralSecurityException {
-
-        AesCbcWithIntegrity.SecretKeys newKey= AesCbcWithIntegrity.generateKeyFromPassword(newPassword, getDeviceSerialNumber(context));
-
-        Map<String, ?> allOfThePrefs = sharedPreferences.getAll();
-        Map<String, String> unencryptedPrefs = new HashMap<String, String>(allOfThePrefs.size());
-        Iterator<String> keys = allOfThePrefs.keySet().iterator();
-        //iterate through the current prefs unencrypting each one
-        while(keys.hasNext()) {
-            String prefKey = keys.next();
-            Object prefValue = allOfThePrefs.get(prefKey);
-            if(prefValue instanceof String){
-                //all the encrypted values will be Strings
-                final String prefValueString = (String)prefValue;
-                final String plainTextPrefValue = decrypt(prefValueString);
-                unencryptedPrefs.put(prefKey, plainTextPrefValue);
-            }
-        }
-
-        //destroy and clear the current pref file
-        destroyKeys();
-        SharedPreferences.Editor editor = edit();
-        editor.clear();
-        editor.commit();
-
-        //assign new key
-        this.keys = newKey;
-        //iterate through the unencryptedPrefs encrypting each one with new key
-        Iterator<String> unencryptedPrefsKeys = unencryptedPrefs.keySet().iterator();
-        while (unencryptedPrefsKeys.hasNext()) {
-            String prefKey = unencryptedPrefsKeys.next();
-            String prefPlainText = unencryptedPrefs.get(prefKey);
-            editor.putString(prefKey, encrypt(prefPlainText));
-        }
-        editor.commit();
-    }
-
 
     /**
-     * User password defaults to app generated and use the Default pref file
+     * User password defaults to app generated password that's stores obfucated with the other preference values. Also this uses the Default shared pref file
      *
-     * @param context
+     * @param context should be ApplicationContext not Activity
      */
     public SecurePreferences(Context context) {
-        this(context, null, null);
+        this(context, "", null);
     }
 
     /**
      *
-     * @param context
+     * @param context should be ApplicationContext not Activity
      * @param password user password/code used to generate encryption key.
      * @param sharedPrefFilename name of the shared pref file. If null use the default shared prefs
      */
     public SecurePreferences(Context context, final String password, final String sharedPrefFilename) {
+        this(context, null, password, sharedPrefFilename);
+    }
 
+
+    /**
+     *
+     *
+     * @param context should be ApplicationContext not Activity
+     * @param secretKey that you've generated
+     * @param sharedPrefFilename name of the shared pref file. If null use the default shared prefs
+     */
+    public SecurePreferences(Context context, final AesCbcWithIntegrity.SecretKeys secretKey, final String sharedPrefFilename) {
+        this(context, secretKey, null, sharedPrefFilename);
+    }
+
+    private SecurePreferences(Context context, final AesCbcWithIntegrity.SecretKeys secretKey, final String password, final String sharedPrefFilename) {
         if (sharedPreferences == null) {
             sharedPreferences = getSharedPreferenceFile(context, sharedPrefFilename);
         }
-        // Initialize or create encryption key
-        if(TextUtils.isEmpty(password)) {
+
+        //
+        if (secretKey!=null) {
+            keys = secretKey;
+        }else if(TextUtils.isEmpty(password)) {
+            // Initialize or create encryption key
             try {
                 final String key = SecurePreferences.generateAesKeyName(context);
 
@@ -183,6 +157,8 @@ public class SecurePreferences implements SharedPreferences {
                 new HashMap<OnSharedPreferenceChangeListener, OnSharedPreferenceChangeListener>(10);
         */
     }
+
+
 
     /**
      * if a prefFilename is not defined the getDefaultSharedPreferences is used.
@@ -395,7 +371,7 @@ public class SecurePreferences implements SharedPreferences {
 	@Override
 	public int getInt(String key, int defaultValue) {
 		final String encryptedValue = sharedPreferences.getString(
-				SecurePreferences.hashPrefKey(key), null);
+                SecurePreferences.hashPrefKey(key), null);
 		if (encryptedValue == null) {
 			return defaultValue;
 		}
@@ -452,6 +428,54 @@ public class SecurePreferences implements SharedPreferences {
 	public boolean contains(String key) {
 		return sharedPreferences.contains(SecurePreferences.hashPrefKey(key));
 	}
+
+
+    /**
+     * Cycle through the unencrypt all the current prefs to mem cache, clear, then encypt with key generated from new password.
+     * This method can be used if switching from the generated key to a key derived from user password
+     *
+     * Note: the pref keys will remain the same as they are SHA256 hashes.
+     *
+     * @param newPassword
+     */
+    public void handlePasswordChange(String newPassword, Context context) throws GeneralSecurityException {
+
+        AesCbcWithIntegrity.SecretKeys newKey= AesCbcWithIntegrity.generateKeyFromPassword(newPassword, getDeviceSerialNumber(context));
+
+        Map<String, ?> allOfThePrefs = sharedPreferences.getAll();
+        Map<String, String> unencryptedPrefs = new HashMap<String, String>(allOfThePrefs.size());
+        Iterator<String> keys = allOfThePrefs.keySet().iterator();
+        //iterate through the current prefs unencrypting each one
+        while(keys.hasNext()) {
+            String prefKey = keys.next();
+            Object prefValue = allOfThePrefs.get(prefKey);
+            if(prefValue instanceof String){
+                //all the encrypted values will be Strings
+                final String prefValueString = (String)prefValue;
+                final String plainTextPrefValue = decrypt(prefValueString);
+                unencryptedPrefs.put(prefKey, plainTextPrefValue);
+            }
+        }
+
+        //destroy and clear the current pref file
+        destroyKeys();
+        SharedPreferences.Editor editor = edit();
+        editor.clear();
+        editor.commit();
+
+        //assign new key
+        this.keys = newKey;
+        //iterate through the unencryptedPrefs encrypting each one with new key
+        Iterator<String> unencryptedPrefsKeys = unencryptedPrefs.keySet().iterator();
+        while (unencryptedPrefsKeys.hasNext()) {
+            String prefKey = unencryptedPrefsKeys.next();
+            String prefPlainText = unencryptedPrefs.get(prefKey);
+            editor.putString(prefKey, encrypt(prefPlainText));
+        }
+        editor.commit();
+    }
+
+
 
 	@Override
 	public Editor edit() {
