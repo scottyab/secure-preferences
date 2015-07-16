@@ -2,8 +2,10 @@ package com.securepreferences.sample;
 
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.securepreferences.SecurePreferences;
+import com.securepreferences.sample.utils.TickTock;
 
 /**
  * Sample app
@@ -26,8 +28,11 @@ public class App extends Application {
      */
     public SharedPreferences getSharedPreferences() {
         if(mSecurePrefs==null){
+            TickTock tickTock = new TickTock();
+            tickTock.tic();
             mSecurePrefs = new SecurePreferences(this, null, "my_prefs.xml");
             SecurePreferences.setLoggingEnabled(true);
+            Log.d("securepref", "SecurePreferences init time: " + TickTock.formatDuration(tickTock.toc()));
         }
         return mSecurePrefs;
     }
