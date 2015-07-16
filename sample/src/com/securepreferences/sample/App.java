@@ -30,7 +30,7 @@ public class App extends Application {
         if(mSecurePrefs==null){
             TickTock tickTock = new TickTock();
             tickTock.tic();
-            mSecurePrefs = new SecurePreferences(this, null, "my_prefs.xml");
+            mSecurePrefs = new SecurePreferences(this, "", "my_prefs.xml");
             SecurePreferences.setLoggingEnabled(true);
             Log.d("securepref", "SecurePreferences init time: " + TickTock.formatDuration(tickTock.toc()));
         }
