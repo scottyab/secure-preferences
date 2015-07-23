@@ -289,8 +289,11 @@ public class TestSecurePreferences extends AndroidTestCase {
         }
 
         String cipherTextFromNewPassword = securePrefs.getUnencryptedString(key, null);
+        String valueFromNewPassword = securePrefs.getString(key, null);
 
+        assertNotNull("Cipher Text for key: " + key + " should not be null", cipherTextFromNewPassword);
         assertNotSame("The two cipher texts should not be the same", cipherText, cipherTextFromNewPassword);
+        assertEquals(value, valueFromNewPassword);
     }
 
     /**

@@ -69,6 +69,9 @@ public class SecurePreferences implements SharedPreferences {
 
     private static final String TAG = SecurePreferences.class.getName();
 
+    //name of the currently loaded sharedPrefFile, can be null if default
+    private String sharedPrefFilename;
+
 
     /**
      * User password defaults to app generated password that's stores obfucated with the other preference values. Also this uses the Default shared pref file
@@ -166,6 +169,8 @@ public class SecurePreferences implements SharedPreferences {
      * @return
      */
     private SharedPreferences getSharedPreferenceFile(Context context, String prefFilename) {
+        this.sharedPrefFilename = sharedPrefFilename;
+
         if(TextUtils.isEmpty(prefFilename)) {
             return PreferenceManager
                     .getDefaultSharedPreferences(context);
@@ -459,20 +464,28 @@ public class SecurePreferences implements SharedPreferences {
 
         //destroy and clear the current pref file
         destroyKeys();
-        SharedPreferences.Editor editor = edit();
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.clear();
         editor.commit();
 
+        //refresh the sharedPreferences object ref: I found it was retaining old ref/values
+        sharedPreferences = null;
+        sharedPreferences = getSharedPreferenceFile(context, sharedPrefFilename);
+
         //assign new key
         this.keys = newKey;
+
+        SharedPreferences.Editor updatedEditor = sharedPreferences.edit();
+
         //iterate through the unencryptedPrefs encrypting each one with new key
         Iterator<String> unencryptedPrefsKeys = unencryptedPrefs.keySet().iterator();
         while (unencryptedPrefsKeys.hasNext()) {
             String prefKey = unencryptedPrefsKeys.next();
             String prefPlainText = unencryptedPrefs.get(prefKey);
-            editor.putString(prefKey, encrypt(prefPlainText));
+            updatedEditor.putString(prefKey, encrypt(prefPlainText));
         }
-        editor.commit();
+        updatedEditor.commit();
     }
 
 
