@@ -1,9 +1,19 @@
 apply plugin: 'com.android.application'
-
+apply plugin: 'com.jakewharton.hugo'
 
 repositories {
     maven {
         url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.jakewharton.hugo:hugo-plugin:1.2.1'
     }
 }
 
@@ -14,8 +24,8 @@ android {
     defaultConfig {
         minSdkVersion 10
         targetSdkVersion 22
-        versionCode 4
-        versionName "1.0.1"
+        versionCode 5
+        versionName "1.0.2"
     }
 
     sourceSets {
@@ -70,5 +80,6 @@ android {
         //snapshot
         //compile('com.scottyab:secure-preferences-lib:0.1.1-SNAPSHOT')
         compile project(':library')
+
     }
 }

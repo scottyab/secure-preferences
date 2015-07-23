@@ -9,4 +9,16 @@
           android:icon="@drawable/ic_action_github"
           app:showAsAction="always"
           />
+
+      <item android:id="@+id/action_create_user_prefs"
+            android:title="@string/action_create_user_prefs"
+            android:orderInCategory="90"
+            app:showAsAction="never"
+          />
+
+      <item android:id="@+id/action_change_password_user_prefs"
+            android:title="@string/action_change_password_user_prefs"
+            android:orderInCategory="100"
+            app:showAsAction="never"
+          />
 </menu>

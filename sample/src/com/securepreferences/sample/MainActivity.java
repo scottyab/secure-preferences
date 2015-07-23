@@ -18,6 +18,8 @@
  */
 package com.securepreferences.sample;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -25,9 +27,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,6 +42,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import hugo.weaving.DebugLog;
 
 public class MainActivity extends ActionBarActivity {
     private SharedPreferences mSecurePrefs;
@@ -107,12 +114,14 @@ public class MainActivity extends ActionBarActivity {
         encValuesTextView.setText(builder.toString());
 	}
 
+	@DebugLog
 	public void onGetButtonClick(View v) {
 		final String value = mSecurePrefs.getString(MainActivity.KEY, null);
-        toast(MainActivity.KEY +"'s, value= " + value);
+        toast(MainActivity.KEY + "'s, value= " + value);
 
 	}
 
+	@DebugLog
 	public void onSetButtonClick(View v) {
 		mSecurePrefs.edit().putString(MainActivity.KEY, MainActivity.VALUE)
 				.commit();
@@ -120,11 +129,13 @@ public class MainActivity extends ActionBarActivity {
 						+ ". Saved");
 	}
 
+	@DebugLog
 	public void onRemoveButtonClick(View v) {
 		mSecurePrefs.edit().remove(MainActivity.KEY).commit();
         toast("key:" + MainActivity.KEY + " removed from secure prefs");
 	}
 
+	@DebugLog
 	public void onClearAllButtonClick(View v) {
 		mSecurePrefs.edit().clear().commit();
 		updateEncValueDisplay();
@@ -165,7 +176,80 @@ public class MainActivity extends ActionBarActivity {
             i.setData(Uri.parse(GITHUB_LINK));
             startActivity(i);
             return true;
+        }else if(id == R.id.action_create_user_prefs){
+            showCreateUserPrefsDialog(false);
+            return true;
+        }
+        else if(id == R.id.action_change_password_user_prefs){
+            showCreateUserPrefsDialog(true);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private void showCreateUserPrefsDialog(boolean chnagePassword) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        LayoutInflater li = LayoutInflater.from(this);
+        View dialogContent = li.inflate(R.layout.dialog_password, null);
+
+        TextView messageTV = (TextView)dialogContent.findViewById(R.id.message);
+        final EditText passwordET = (EditText)dialogContent.findViewById(R.id.passwordET);
+
+        builder.setView(dialogContent);
+
+        if(chnagePassword) {
+            builder.setTitle("Change password");
+            messageTV.setText("Assumes you've already created/loaded a user password based pref file.");
+            messageTV.setHint("Enter new password");
+
+            builder.setPositiveButton("Change", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    String pwd = passwordET.getText().toString();
+                    if(TextUtils.isEmpty(pwd)){
+                        toast("Please enter a password");
+                    }else {
+                        if(App.get().changeUserPrefPassword(pwd)){
+                            toast("User prefs password changed");
+                        }else {
+                            toast("Password change failed");
+                        }
+                    }
+                    dialog.dismiss();
+                }
+            });
+
+        } else {
+            builder.setTitle("Load User prefs file");
+            messageTV.setText("Load or create a user password based pref file, based on password entered here.");
+            messageTV.setHint("Enter password");
+
+            builder.setPositiveButton("Create/Load", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    String pwd = passwordET.getText().toString();
+                    if(TextUtils.isEmpty(pwd)){
+                        toast("Please enter a password");
+                    }else {
+                        App.get().getUserPinBasedSharedPreferences(pwd);
+                        toast("User prefs loaded");
+                    }
+                    dialog.dismiss();
+                }
+            });
+        }
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+
+        builder.create().show();
+    }
+
+
 }

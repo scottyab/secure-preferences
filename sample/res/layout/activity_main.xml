@@ -84,19 +84,25 @@
                 android:text="@string/clear_all_prefs_button" />
         </LinearLayout>
 
+        <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/button_vertical_margin">
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/button_vertical_margin"
             android:onClick="onActivityButtonClick"
-            android:text="@string/activity_button" />
+            android:text="@string/activity_button"
+            android:layout_weight="1"/>
 
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/button_vertical_margin"
             android:onClick="onFragmentButtonClick"
-            android:text="@string/fragment_button" />
+            android:text="@string/fragment_button"
+            android:layout_weight="1"/>
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/DumpContainer"

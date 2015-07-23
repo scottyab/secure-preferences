@@ -24,8 +24,8 @@
     <string name="set_button">Set Foo</string>
     <string name="remove_button">Remove Foo</string>
     <string name="clear_all_prefs_button">Clear all prefs</string>
-    <string name="activity_button">Launch preference activity</string>
-    <string name="fragment_button">Launch preference fragment</string>
+    <string name="activity_button">Launch pref activity</string>
+    <string name="fragment_button">Launch pref fragment</string>
     <string name="checkbox_title">Checkbox preference</string>
     <string name="checkbox_key">checkbox_key</string>
     <string name="text_title">Text preference</string>
@@ -35,6 +35,8 @@
     <string name="list_key">list_key</string>
     <string name="list_default">3</string>
     <string name="action_github">Get it on Github</string>
+    <string name="action_create_user_prefs">Create user prefs</string>
+    <string name="action_change_password_user_prefs">Change password on user prefs</string>
 
     <string-array name="list_entries">
         <item>One</item>
