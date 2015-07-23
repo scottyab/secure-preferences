@@ -1,7 +1,7 @@
 ##Release Notes:
 0.1.3
 * #25 fix to issue handling password change
-
+* Updates crypto dependency to version `com.scottyab:aes-crypto:0.0.3` to help with issue #18
 
 0.1.2
 * #22 Internal changed to local reference to shared pref file and keys from static, as this made it impossible to have multiple secure preference files.

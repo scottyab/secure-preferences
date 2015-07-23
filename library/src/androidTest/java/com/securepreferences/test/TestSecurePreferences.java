@@ -105,6 +105,7 @@ public class TestSecurePreferences extends AndroidTestCase {
         deletePrefFile(prefFileName);
     }
 
+
     /**
      * Test if incorrect password the prefs are not decrypted
      */
@@ -270,6 +271,29 @@ public class TestSecurePreferences extends AndroidTestCase {
             e.printStackTrace();
             fail("Error generating a key");
         }
+    }
+
+
+    public void testUserPasswordBasedPrefGenerateSameKeyFromSamePassword() {
+
+        SecurePreferences securePrefs = new SecurePreferences(getContext(), "myfirstpassword", USER_PREFS_WITH_PASSWORD);
+        Editor editor = securePrefs.edit();
+        final String key = "pwchgfoo";
+        final String value = "pwchgbar";
+        editor.putString(key,value);
+        editor.commit();
+
+        String valueFromPrefs = securePrefs.getString(key, null);
+
+        //get another secure prefs using the same password.
+        SecurePreferences securePrefs2 = new SecurePreferences(getContext(), "myfirstpassword", USER_PREFS_WITH_PASSWORD);
+
+        String valueFromPrefs2 = securePrefs2.getString(key, null);
+
+        assertEquals("Both decrypted values should be the same", valueFromPrefs, valueFromPrefs2);
+        assertEquals("Decrypted value should match the original value", value, valueFromPrefs2);
+
+
     }
 
 
