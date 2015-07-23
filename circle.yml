@@ -20,10 +20,10 @@ test:
       #- (./gradlew connectedAndroidTest)
 
       # copy the build outputs to artifacts
-      - cp -r secure-preferences/build/outputs $CIRCLE_ARTIFACTS
+      - cp -r /home/ubuntu/secure-preferences/library/build/outputs $CIRCLE_ARTIFACTS
 
       # copy the test results to the test results directory.
-      - cp -r secure-preferences/build/outputs/androidTest-results/* $CIRCLE_TEST_REPORTS
+      - cp -r /home/ubuntu/secure-preferences/library/build/reports/androidTests/* $CIRCLE_TEST_REPORTS
 
 #    - (./gradlew assembleDebug):
 #          timeout: 1200
