@@ -2,6 +2,7 @@ Secure-preferences
 ==================
 
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-secure--preferences-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/362)
+[![Build status](https://circleci.com/gh/scottyab/secure-preferences.svg?style=shield&circle-token=473391b210fc98fc8e97a857082e29376de5963b)]
 
 This is Android Shared preference wrapper that encrypts the values of Shared Preferences using *AES 128*, *CBC*, and *PKCS5* padding with integrity checking in the form of a SHA 256 hash. Each key is stored as a one way SHA 256 hash. Both keys and values are base64 encoded before storing into prefs xml file. **By default the generated key is stored in the backing preferences file and so can be read and extracted by root user.** Recommend use the user password generated option as added in v0.1.0.
 
