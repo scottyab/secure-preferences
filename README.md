@@ -11,7 +11,7 @@ The sample app is available on [playstore](https://play.google.com/store/apps/de
  
 
 ##Release v0.1.0+
-The **v0.1.0** release is a major refactor of the guts of secure prefs, which is *Not backwards compatible* yet with older 0.0.1 - 0.0.4 versions. So if you have an existing app using this don't upgrade. I'll be looking to add migration into a later release.
+The **v0.1.0** release was a major refactor of the guts of secure prefs, which is *Not backwards compatible* yet with older 0.0.1 - 0.0.4 versions. So if you have an existing app using this don't upgrade. I'll be looking to add migration into a later release.
 
 [Full list of changes](changes.md)
 
@@ -21,11 +21,11 @@ The **v0.1.0** release is a major refactor of the guts of secure prefs, which is
 
 Maven central is the preferred way:
 
-Note: currently v0.1.0 was dependent on snapshot of aes-crypto, this is only as I was waiting for the aes-crypto repo owner to upload to maven. I've sorted this for v0.1.1 which is no longer dependant on Snapshot repo. 
+Note: currently v0.1.0 was dependent on snapshot of aes-crypto, this is only as I was waiting for the aes-crypto repo owner to upload to maven. I've sorted this for v0.1.1+ which is no longer dependant on Snapshot repo.
 
 ```java
 	dependencies {
-    	compile 'com.scottyab:secure-preferences-lib:0.1.1'
+    	compile 'com.scottyab:secure-preferences-lib:0.1.3'
 	}
 ```
 
