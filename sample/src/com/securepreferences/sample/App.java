@@ -2,10 +2,12 @@ package com.securepreferences.sample;
 
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.util.Log;
 
 import com.securepreferences.SecurePreferences;
 import com.securepreferences.sample.utils.TickTock;
+import com.tozny.crypto.android.AesCbcWithIntegrity;
 
 import java.security.GeneralSecurityException;
 
@@ -36,13 +38,27 @@ public class App extends Application {
     @DebugLog
     public SharedPreferences getSharedPreferences() {
         if(mSecurePrefs==null){
-            TickTock tickTock = new TickTock();
-            tickTock.tic();
             mSecurePrefs = new SecurePreferences(this, "", "my_prefs.xml");
             SecurePreferences.setLoggingEnabled(true);
-            Log.d(TAG, "SecurePreferences init time: " + TickTock.formatDuration(tickTock.toc()));
         }
         return mSecurePrefs;
+    }
+
+
+    /**
+     * This is just an example of how you might want to create your own key with less iterations 1,000 rather than default 10,000. This makes it quicker but less secure.
+     * @return
+     */
+    @DebugLog
+    public SharedPreferences getSharedPreferences1000() {
+        try {
+            AesCbcWithIntegrity.SecretKeys myKey = AesCbcWithIntegrity.generateKeyFromPassword(Build.SERIAL,AesCbcWithIntegrity.generateSalt(),1000);
+            SharedPreferences securePrefs1000 = new SecurePreferences(this, myKey, "my_prefs_1000.xml");
+            return securePrefs1000;
+        } catch (GeneralSecurityException e) {
+            Log.e(TAG, "Failed to create custom key for SecurePreferences", e);
+        }
+        return null;
     }
 
 

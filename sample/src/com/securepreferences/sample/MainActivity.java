@@ -63,6 +63,8 @@ public class MainActivity extends ActionBarActivity {
 
         mSecurePrefs = App.get().getSharedPreferences();
 
+        App.get().getSharedPreferences1000();
+
 		updateEncValueDisplay();
 
         mSecurePrefs

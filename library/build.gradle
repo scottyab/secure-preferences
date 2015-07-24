@@ -17,7 +17,7 @@ android {
     }
 
     dependencies {
-        compile 'com.scottyab:aes-crypto:0.0.2'
+        compile 'com.scottyab:aes-crypto:0.0.3'
     }
 
 
