@@ -25,9 +25,9 @@ Maven central is the preferred way:
 Note: currently v0.1.0 was dependent on snapshot of aes-crypto, this is only as I was waiting for the aes-crypto repo owner to upload to maven. I've sorted this for v0.1.1+ which is no longer dependant on Snapshot repo.
 
 ```java
-	dependencies {
-    	compile 'com.scottyab:secure-preferences-lib:0.1.3'
-	}
+dependencies {
+    compile 'com.scottyab:secure-preferences-lib:0.1.3'
+}
 ```
 
 ###Download
@@ -37,14 +37,14 @@ Or download the release .aar or clone this repo and add the library as a Android
 This will use the default shared pref file
 
 ```java
-        SharedPreferences prefs = new SecurePreferences(context);     
+SharedPreferences prefs = new SecurePreferences(context);     
 ```
 
 ##Custom pref file
 You can define a separate file for encrypted preferences. 
 
 ```java
-        SharedPreferences prefs = new SecurePreferences(context, null, "my_custom_prefs.xml");
+SharedPreferences prefs = new SecurePreferences(context, null, "my_custom_prefs.xml");
 ```
 
 
@@ -52,15 +52,14 @@ You can define a separate file for encrypted preferences.
 Using a password that the user types in that isn't stored elsewhere in the app passed to the SecurePreferences constructor means the key is generated at runtime and *not* stored in the backing pref file.
 
 ```java
-        SharedPreferences prefs = new SecurePreferences(context, "userpassword", "my_user_prefs.xml");
+SharedPreferences prefs = new SecurePreferences(context, "userpassword", "my_user_prefs.xml");
 ```
 
 ##Changing Password
 
 ```java
-        SecurePreferences securePrefs = new SecurePreferences(context, "userpassword", "my_user_prefs.xml");
-        securePrefs.handlePasswordChange("newPassword", context);
-        
+SecurePreferences securePrefs = new SecurePreferences(context, "userpassword", "my_user_prefs.xml");
+securePrefs.handlePasswordChange("newPassword", context);
 ```
 
 
