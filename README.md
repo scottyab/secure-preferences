@@ -33,6 +33,12 @@ dependencies {
 ###Download
 Or download the release .aar or clone this repo and add the library as a Android library project/module.
 
+### ProGuard config
+
+` -keep class com.tozny.crypto.android.AesCbcWithIntegrity$PrngFixes$* { *; }`
+
+(thanks to @cermakcz)
+
 #Examples
 This will use the default shared pref file
 
