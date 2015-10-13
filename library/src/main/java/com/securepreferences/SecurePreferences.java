@@ -142,7 +142,8 @@ public class SecurePreferences implements SharedPreferences {
         }else{
             //use the password to generate the key
             try {
-                keys = AesCbcWithIntegrity.generateKeyFromPassword(password, getDeviceSerialNumber(context));
+                final byte[] salt = getDeviceSerialNumber(context).getBytes();
+                keys = AesCbcWithIntegrity.generateKeyFromPassword(password, salt);
 
                 if(keys ==null){
                     throw new GeneralSecurityException("Problem generating Key From Password");
@@ -206,7 +207,9 @@ public class SecurePreferences implements SharedPreferences {
 		return hashPrefKey(generatedKeyName.toString());
 	}
 
-	/**
+
+
+    /**
 	 * Gets the hardware serial number of this device.
 	 * 
 	 * @return serial number or Settings.Secure.ANDROID_ID if not available.
@@ -445,7 +448,8 @@ public class SecurePreferences implements SharedPreferences {
      */
     public void handlePasswordChange(String newPassword, Context context) throws GeneralSecurityException {
 
-        AesCbcWithIntegrity.SecretKeys newKey= AesCbcWithIntegrity.generateKeyFromPassword(newPassword, getDeviceSerialNumber(context));
+        final byte[] salt = getDeviceSerialNumber(context).getBytes();
+        AesCbcWithIntegrity.SecretKeys newKey= AesCbcWithIntegrity.generateKeyFromPassword(newPassword,salt);
 
         Map<String, ?> allOfThePrefs = sharedPreferences.getAll();
         Map<String, String> unencryptedPrefs = new HashMap<String, String>(allOfThePrefs.size());
