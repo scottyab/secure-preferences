@@ -36,7 +36,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
@@ -62,11 +61,8 @@ public class MainActivity extends ActionBarActivity {
 		initViews();
 
         mSecurePrefs = App.get().getSharedPreferences();
-
         App.get().getSharedPreferences1000();
-
 		updateEncValueDisplay();
-
         mSecurePrefs
 				.registerOnSharedPreferenceChangeListener(new OnSharedPreferenceChangeListener() {
 					@Override
@@ -75,20 +71,26 @@ public class MainActivity extends ActionBarActivity {
 						updateEncValueDisplay();
 					}
 				});
+
 	}
 
 	private void initViews() {
 		encValuesTextView = (TextView) findViewById(R.id.fooValueEncTV);
 	}
 
-
+    private SharedPreferences getSharedPref(){
+        if(mSecurePrefs==null){
+            mSecurePrefs = App.get().getSharedPreferences();
+        }
+        return mSecurePrefs;
+    }
 
 	/**
 	 * this is just for demo purposes so you can see the dumped content of the
 	 * actual shared prefs file without needing a rooted device
 	 */
 	private void updateEncValueDisplay() {
-		Map<String, ?> all = mSecurePrefs.getAll();
+		Map<String, ?> all = getSharedPref().getAll();
         StringBuilder builder = new StringBuilder();
 
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss");
@@ -118,14 +120,14 @@ public class MainActivity extends ActionBarActivity {
 
 	@DebugLog
 	public void onGetButtonClick(View v) {
-		final String value = mSecurePrefs.getString(MainActivity.KEY, null);
+		final String value = getSharedPref().getString(MainActivity.KEY, null);
         toast(MainActivity.KEY + "'s, value= " + value);
 
 	}
 
 	@DebugLog
 	public void onSetButtonClick(View v) {
-		mSecurePrefs.edit().putString(MainActivity.KEY, MainActivity.VALUE)
+		getSharedPref().edit().putString(MainActivity.KEY, MainActivity.VALUE)
 				.commit();
 		toast(MainActivity.KEY + " with enc value:" + MainActivity.VALUE
 						+ ". Saved");
@@ -133,13 +135,13 @@ public class MainActivity extends ActionBarActivity {
 
 	@DebugLog
 	public void onRemoveButtonClick(View v) {
-		mSecurePrefs.edit().remove(MainActivity.KEY).commit();
+		getSharedPref().edit().remove(MainActivity.KEY).commit();
         toast("key:" + MainActivity.KEY + " removed from secure prefs");
 	}
 
 	@DebugLog
 	public void onClearAllButtonClick(View v) {
-		mSecurePrefs.edit().clear().commit();
+		getSharedPref().edit().clear().commit();
 		updateEncValueDisplay();
         toast("All secure prefs cleared");
 	}

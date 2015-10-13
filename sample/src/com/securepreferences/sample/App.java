@@ -3,6 +3,7 @@ package com.securepreferences.sample;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.securepreferences.SecurePreferences;
@@ -59,6 +60,11 @@ public class App extends Application {
             Log.e(TAG, "Failed to create custom key for SecurePreferences", e);
         }
         return null;
+    }
+
+    @DebugLog
+    public SharedPreferences getDefaultSharedPreferences() {
+        return PreferenceManager.getDefaultSharedPreferences(this);
     }
 
 
