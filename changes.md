@@ -1,4 +1,10 @@
 ##Release Notes:
+0.1.4
+* #30 prevented IllegalArgumentException: bad base-64 by not using generateKeyFromPassword(password, salt) where salt is String, using converted to byte[] before calling.
+* #31 Updates crypto dependency to version `com.scottyab:aes-crypto:0.0.4` to fix issues when obfuscated
+* Support for ProGuard without the need to `-keep` any of the library or dependency classes(or inner classes)
+* Sample's minifyEnabled set to true
+
 0.1.3
 * #25 fix to issue handling password change
 * Updates crypto dependency to version `com.scottyab:aes-crypto:0.0.3` to help with issue #18
@@ -24,6 +30,8 @@ This release is a major refactor of the guts of secure prefs, which is *Not back
 * removed test project and added tests as part of main project
 * refactored library project to standard gradle structure
 * published to maven central/added github release
+
+Note: 0.1.0 was dependent on snapshot of aes-crypto, this is only as I was waiting for the aes-crypto repo owner to publish to maven. I've sorted this for v0.1.1+ which is no longer dependant on Snapshot repo.
 
 
 0.0.4

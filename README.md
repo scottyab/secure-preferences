@@ -22,11 +22,11 @@ The **v0.1.0** release was a major refactor of the guts of secure prefs, which i
 
 Maven central is the preferred way:
 
-Note: currently v0.1.0 was dependent on snapshot of aes-crypto, this is only as I was waiting for the aes-crypto repo owner to upload to maven. I've sorted this for v0.1.1+ which is no longer dependant on Snapshot repo.
+Note: v0.1.0 was dependent on snapshot of aes-crypto, this is only as I was waiting for the aes-crypto repo owner to upload to maven. I've sorted this for v0.1.1+ which is no longer dependant on Snapshot repo.
 
 ```java
 dependencies {
-    compile 'com.scottyab:secure-preferences-lib:0.1.3'
+    compile 'com.scottyab:secure-preferences-lib:0.1.4'
 }
 ```
 
@@ -35,9 +35,18 @@ Or download the release .aar or clone this repo and add the library as a Android
 
 ### ProGuard config
 
+As of v0.1.4 **no** specific `-keep` config is needed.
+
+v0.1.3 There was a bug in 0.0.3 of :aes-crypto which broke secure-prefs when used with proguard
+
+If you are using version v0.1.0 - v0.1.2 please use the below (thanks to @cermakcz):
+
 ` -keep class com.tozny.crypto.android.AesCbcWithIntegrity$PrngFixes$* { *; }`
 
-(thanks to @cermakcz)
+### DexGuard
+
+There is specific DexGuard config supplied with DexGuard 7+ located `<dexgaurd root>/samples/advanced/SecurePreferences`
+
 
 #Examples
 This will use the default shared pref file

@@ -18,3 +18,7 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+#-dontwarn com.tozny.crypto.android.AesCbcWithIntegrity
+
+#debuggings
+#-keepattributes SourceFile,LineNumberTable,*Annotation*

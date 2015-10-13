@@ -24,8 +24,8 @@ android {
     defaultConfig {
         minSdkVersion 10
         targetSdkVersion 22
-        versionCode 5
-        versionName "1.0.2"
+        versionCode 6
+        versionName "1.0.3"
     }
 
     sourceSets {
@@ -57,13 +57,14 @@ android {
 
     buildTypes {
         debug{
+            debuggable true
             applicationIdSuffix ".debug"
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
 
         release {
-            minifyEnabled false
+            minifyEnabled true
             if(project.hasProperty("SECURE_PREF_SAMPLE_STORE")) {
                 signingConfig signingConfigs.release
             }
@@ -79,7 +80,12 @@ android {
         //compile 'com.scottyab:secure-preferences-lib:0.1.1'
         //snapshot
         //compile('com.scottyab:secure-preferences-lib:0.1.1-SNAPSHOT')
+
+        //used when using local aes-crypto
+        //compile project(':aes-crypto-release')
         compile project(':library')
+
+
 
     }
 }
