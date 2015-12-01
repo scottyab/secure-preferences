@@ -86,7 +86,7 @@ SharedPreferences keys and values are stored as simple map in an XML file.  You 
 
 
 ```xml
-	<map>
+<map>
     <int name="timeout" value="500" />
     <boolean name="is_logged_in" value="true" />
 </map>
@@ -96,7 +96,7 @@ SharedPreferences keys and values are stored as simple map in an XML file.  You 
 
 
 ```xml
-	<map>
+<map>
     <string name="TuwbBU0IrAyL9znGBJ87uEi7pW0FwYwX8SZiiKnD2VZ7">
         pD2UhS2K2MNjWm8KzpFrag==:MWm7NgaEhvaxAvA9wASUl0HUHCVBWkn3c2T1WoSAE/g=rroijgeWEGRDFSS/hg
     </string>
