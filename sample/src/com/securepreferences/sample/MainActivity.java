@@ -52,7 +52,7 @@ public class MainActivity extends ActionBarActivity {
 	private static final String KEY = "Foo";
 	private static final String VALUE = "Bar";
 
-    private static String GITHUB_LINK = "https://github.com/scottyab/secure-preferences";
+    private static String githubLink = "https://github.com/scottyab/secure-preferences";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -177,7 +177,7 @@ public class MainActivity extends ActionBarActivity {
         int id = item.getItemId();
         if (id == R.id.action_github) {
             Intent i = new Intent(Intent.ACTION_VIEW);
-            i.setData(Uri.parse(GITHUB_LINK));
+            i.setData(Uri.parse(githubLink));
             startActivity(i);
             return true;
         }else if(id == R.id.action_create_user_prefs){
