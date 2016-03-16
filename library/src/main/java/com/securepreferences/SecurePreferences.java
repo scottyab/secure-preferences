@@ -507,7 +507,7 @@ public class SecurePreferences implements SharedPreferences {
 	 * original {@link SecurePreferences} until you call {@link #commit()} or
 	 * {@link #apply()}.
 	 */
-	public class Editor implements SharedPreferences.Editor {
+	public final class Editor implements SharedPreferences.Editor {
 		private SharedPreferences.Editor mEditor;
 
 		/**

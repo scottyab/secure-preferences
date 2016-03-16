@@ -355,8 +355,7 @@ public class TestSecurePreferences extends AndroidTestCase {
         String sharedPrefFolderPath = getContext().getFilesDir().getParent() + "/shared_prefs";
 
         String prefFilePath = sharedPrefFolderPath + "/" + prefFileName + ".xml";
-        File f = new File(prefFilePath);
-        return f;
+        return new File(prefFilePath);
     }
 
     private void deletePrefFile(String prefFileName) {
