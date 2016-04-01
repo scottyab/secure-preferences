@@ -54,8 +54,7 @@ public class App extends Application {
     public SharedPreferences getSharedPreferences1000() {
         try {
             AesCbcWithIntegrity.SecretKeys myKey = AesCbcWithIntegrity.generateKeyFromPassword(Build.SERIAL,AesCbcWithIntegrity.generateSalt(),1000);
-            SharedPreferences securePrefs1000 = new SecurePreferences(this, myKey, "my_prefs_1000.xml");
-            return securePrefs1000;
+            return new SecurePreferences(this, myKey, "my_prefs_1000.xml");
         } catch (GeneralSecurityException e) {
             Log.e(TAG, "Failed to create custom key for SecurePreferences", e);
         }

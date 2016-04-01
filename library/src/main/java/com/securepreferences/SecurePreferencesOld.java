@@ -187,8 +187,7 @@ public class SecurePreferencesOld implements SharedPreferences {
 				algorthm, PROVIDER);
 		KeySpec keySpec = new PBEKeySpec(passphraseOrPin, salt, iterations,
 				keyLength);
-		SecretKey secretKey = secretKeyFactory.generateSecret(keySpec);
-		return secretKey;
+		return secretKeyFactory.generateSecret(keySpec);
 	}
 
 	/**
@@ -402,7 +401,7 @@ public class SecurePreferencesOld implements SharedPreferences {
 	 * original {@link SecurePreferencesOld} until you call {@link #commit()} or
 	 * {@link #apply()}.
 	 */
-	public static class Editor implements SharedPreferences.Editor {
+	public static final class Editor implements SharedPreferences.Editor {
 		private SharedPreferences.Editor mEditor;
 
 		/**
