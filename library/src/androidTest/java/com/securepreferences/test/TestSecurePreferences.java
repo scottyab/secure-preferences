@@ -39,7 +39,7 @@ public class TestSecurePreferences extends AndroidTestCase {
         try {
             tearDown();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.d(TAG, "Exception in teamDown ", e);
         }
     }
 
@@ -268,7 +268,7 @@ public class TestSecurePreferences extends AndroidTestCase {
             assertEquals(DEFAULT_VALUE, retrievedValue);
 
         } catch (GeneralSecurityException e) {
-            e.printStackTrace();
+            Log.d(TAG, "GeneralSecurityException in testSupplyOwnKeys ", e);
             fail("Error generating a key");
         }
     }

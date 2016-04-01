@@ -453,10 +453,10 @@ public class SecurePreferences implements SharedPreferences {
 
         Map<String, ?> allOfThePrefs = sharedPreferences.getAll();
         Map<String, String> unencryptedPrefs = new HashMap<String, String>(allOfThePrefs.size());
-        Iterator<String> keys = allOfThePrefs.keySet().iterator();
+        Iterator<String> keysIterator = allOfThePrefs.keySet().iterator();
         //iterate through the current prefs unencrypting each one
-        while(keys.hasNext()) {
-            String prefKey = keys.next();
+        while(keysIterator.hasNext()) {
+            String prefKey = keysIterator.next();
             Object prefValue = allOfThePrefs.get(prefKey);
             if(prefValue instanceof String){
                 //all the encrypted values will be Strings

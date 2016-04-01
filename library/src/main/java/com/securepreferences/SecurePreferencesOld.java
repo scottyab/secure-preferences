@@ -45,6 +45,7 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
+ * @deprecated
  * This is the old v.0.4.0 class only kept to help with migration in future versions.
  *
  * Wrapper class for Android's {@link android.content.SharedPreferences} interface, which adds a
