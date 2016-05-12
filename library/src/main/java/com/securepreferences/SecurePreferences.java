@@ -53,6 +53,8 @@ import java.util.Set;
  */
 public class SecurePreferences implements SharedPreferences {
 
+	private static final int ORIGINAL_ITERATION_COUNT = 10000;
+
     //the backing pref file
     private SharedPreferences sharedPreferences;
 
@@ -89,7 +91,7 @@ public class SecurePreferences implements SharedPreferences {
      * @param sharedPrefFilename name of the shared pref file. If null use the default shared prefs
      */
     public SecurePreferences(Context context, final String password, final String sharedPrefFilename) {
-        this(context, null, password, sharedPrefFilename);
+        this(context, null, password, sharedPrefFilename, ORIGINAL_ITERATION_COUNT);
     }
 
 
@@ -101,10 +103,10 @@ public class SecurePreferences implements SharedPreferences {
      * @param sharedPrefFilename name of the shared pref file. If null use the default shared prefs
      */
     public SecurePreferences(Context context, final AesCbcWithIntegrity.SecretKeys secretKey, final String sharedPrefFilename) {
-        this(context, secretKey, null, sharedPrefFilename);
+        this(context, secretKey, null, sharedPrefFilename, ORIGINAL_ITERATION_COUNT);
     }
 
-    private SecurePreferences(Context context, final AesCbcWithIntegrity.SecretKeys secretKey, final String password, final String sharedPrefFilename) {
+    private SecurePreferences(Context context, final AesCbcWithIntegrity.SecretKeys secretKey, final String password, final String sharedPrefFilename, int iterationCount) {
         if (sharedPreferences == null) {
             sharedPreferences = getSharedPreferenceFile(context, sharedPrefFilename);
         }
@@ -115,7 +117,7 @@ public class SecurePreferences implements SharedPreferences {
         }else if(TextUtils.isEmpty(password)) {
             // Initialize or create encryption key
             try {
-                final String key = SecurePreferences.generateAesKeyName(context);
+                final String key = generateAesKeyName(context, iterationCount);
 
                 String keyAsString = sharedPreferences.getString(key, null);
                 if (keyAsString == null) {
@@ -192,19 +194,21 @@ public class SecurePreferences implements SharedPreferences {
     /**
      * Uses device and application values to generate the pref key for the encryption key
      * @param context
-     * @return String to be used as the AESkey Pref key
+     * @param iterationCount
+	 * @return String to be used as the AESkey Pref key
      * @throws GeneralSecurityException if something goes wrong in generation
      */
-	private static String generateAesKeyName(Context context) throws GeneralSecurityException
+	public String generateAesKeyName(Context context, int iterationCount) throws GeneralSecurityException
     {
 		final String password = context.getPackageName();
 		final byte[] salt = getDeviceSerialNumber(context).getBytes();
-        AesCbcWithIntegrity.SecretKeys generatedKeyName = AesCbcWithIntegrity.generateKeyFromPassword(password, salt);
-        if(generatedKeyName==null){
-            throw new GeneralSecurityException("Key not generated");
-        }
+        AesCbcWithIntegrity.SecretKeys generatedKeyName = AesCbcWithIntegrity.generateKeyFromPassword(password, salt, iterationCount);
 
 		return hashPrefKey(generatedKeyName.toString());
+	}
+
+	public String generateAesKeyName(Context context) throws GeneralSecurityException {
+		return generateAesKeyName(context, ORIGINAL_ITERATION_COUNT);
 	}
 
 
@@ -446,10 +450,10 @@ public class SecurePreferences implements SharedPreferences {
      *
      * @param newPassword
      */
-    public void handlePasswordChange(String newPassword, Context context) throws GeneralSecurityException {
+    public void handlePasswordChange(String newPassword, Context context, int iterationCount) throws GeneralSecurityException {
 
         final byte[] salt = getDeviceSerialNumber(context).getBytes();
-        AesCbcWithIntegrity.SecretKeys newKey= AesCbcWithIntegrity.generateKeyFromPassword(newPassword,salt);
+        AesCbcWithIntegrity.SecretKeys newKey= AesCbcWithIntegrity.generateKeyFromPassword(newPassword,salt, iterationCount);
 
         Map<String, ?> allOfThePrefs = sharedPreferences.getAll();
         Map<String, String> unencryptedPrefs = new HashMap<String, String>(allOfThePrefs.size());
@@ -491,6 +495,10 @@ public class SecurePreferences implements SharedPreferences {
         }
         updatedEditor.commit();
     }
+
+	public void handlePasswordChange(String newPassword, Context context) throws GeneralSecurityException {
+		handlePasswordChange(newPassword, context, ORIGINAL_ITERATION_COUNT);
+	}
 
 
 
