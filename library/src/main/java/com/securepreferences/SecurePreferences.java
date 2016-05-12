@@ -172,7 +172,7 @@ public class SecurePreferences implements SharedPreferences {
      * @return
      */
     private SharedPreferences getSharedPreferenceFile(Context context, String prefFilename) {
-        this.sharedPrefFilename = sharedPrefFilename;
+        this.sharedPrefFilename = prefFilename;
 
         if(TextUtils.isEmpty(prefFilename)) {
             return PreferenceManager
