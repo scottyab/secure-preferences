@@ -84,6 +84,17 @@ public class SecurePreferences implements SharedPreferences {
         this(context, "", null);
     }
 
+
+	/**
+	 *
+	 * @param context should be ApplicationContext not Activity
+	 * @param iterationCount The iteration count for the keys generation
+     */
+	public SecurePreferences(Context context, int iterationCount) {
+		this(context, "", null, iterationCount);
+	}
+
+
     /**
      *
      * @param context should be ApplicationContext not Activity
@@ -95,6 +106,16 @@ public class SecurePreferences implements SharedPreferences {
     }
 
 
+	/**
+	 *
+	 * @param context should be ApplicationContext not Activity
+	 * @param iterationCount The iteration count for the keys generation
+	 */
+	public SecurePreferences(Context context, final String password, final String sharedPrefFilename, int iterationCount) {
+		this(context, null, password, sharedPrefFilename, iterationCount);
+	}
+
+
     /**
      *
      *
@@ -103,7 +124,7 @@ public class SecurePreferences implements SharedPreferences {
      * @param sharedPrefFilename name of the shared pref file. If null use the default shared prefs
      */
     public SecurePreferences(Context context, final AesCbcWithIntegrity.SecretKeys secretKey, final String sharedPrefFilename) {
-        this(context, secretKey, null, sharedPrefFilename, ORIGINAL_ITERATION_COUNT);
+        this(context, secretKey, null, sharedPrefFilename, 0);
     }
 
     private SecurePreferences(Context context, final AesCbcWithIntegrity.SecretKeys secretKey, final String password, final String sharedPrefFilename, int iterationCount) {
@@ -145,9 +166,9 @@ public class SecurePreferences implements SharedPreferences {
             //use the password to generate the key
             try {
                 final byte[] salt = getDeviceSerialNumber(context).getBytes();
-                keys = AesCbcWithIntegrity.generateKeyFromPassword(password, salt);
+                keys = AesCbcWithIntegrity.generateKeyFromPassword(password, salt, iterationCount);
 
-                if(keys ==null){
+                if(keys == null){
                     throw new GeneralSecurityException("Problem generating Key From Password");
                 }
             } catch (GeneralSecurityException e) {
