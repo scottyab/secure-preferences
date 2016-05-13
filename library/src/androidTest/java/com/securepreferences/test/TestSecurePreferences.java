@@ -215,7 +215,7 @@ public class TestSecurePreferences extends AndroidTestCase {
 		secureEdit.putUnencryptedString(key, value);
 		secureEdit.commit();
 
-		String retrievedValue = securePrefs.getUnencryptedString(key, null);
+		String retrievedValue = securePrefs.getEncryptedString(key, null);
 		assertEquals(value, retrievedValue);
 	}
 
@@ -305,14 +305,14 @@ public class TestSecurePreferences extends AndroidTestCase {
         editor.putString(key,value);
         editor.commit();
 
-        String cipherText = securePrefs.getUnencryptedString(key, null);
+        String cipherText = securePrefs.getEncryptedString(key, null);
         try {
             securePrefs.handlePasswordChange("newPassword", getContext());
         } catch (GeneralSecurityException e) {
             fail("error changing passwd: " + e.getMessage());
         }
 
-        String cipherTextFromNewPassword = securePrefs.getUnencryptedString(key, null);
+        String cipherTextFromNewPassword = securePrefs.getEncryptedString(key, null);
         String valueFromNewPassword = securePrefs.getString(key, null);
 
         assertNotNull("Cipher Text for key: " + key + " should not be null", cipherTextFromNewPassword);
@@ -329,14 +329,14 @@ public class TestSecurePreferences extends AndroidTestCase {
         editor.putString(key,value);
         editor.commit();
 
-        String cipherText = securePrefs.getUnencryptedString(key, null);
+        String cipherText = securePrefs.getEncryptedString(key, null);
         try {
             securePrefs.handlePasswordChange("myfirstpassword", getContext(), 1000);
         } catch (GeneralSecurityException e) {
             fail("error changing passwd: " + e.getMessage());
         }
 
-        String cipherTextFromPasswordChangedIteration = securePrefs.getUnencryptedString(key, null);
+        String cipherTextFromPasswordChangedIteration = securePrefs.getEncryptedString(key, null);
         String valueFromPasswordChangedIteration = securePrefs.getString(key, null);
 
         assertNotNull("Cipher Text for key: " + key + " should not be null", cipherTextFromPasswordChangedIteration);

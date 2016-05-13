@@ -380,12 +380,12 @@ public class SecurePreferences implements SharedPreferences {
 	 * 
 	 * @param key
 	 * @param defaultValue
-	 * @return Unencrypted value of the key or the defaultValue if
+	 * @return Encrypted value of the key or the defaultValue if
 	 */
-	public String getUnencryptedString(String key, String defaultValue) {
-		final String nonEncryptedValue = sharedPreferences.getString(
+	public String getEncryptedString(String key, String defaultValue) {
+		final String encryptedValue = sharedPreferences.getString(
 				SecurePreferences.hashPrefKey(key), null);
-		return (nonEncryptedValue != null) ? nonEncryptedValue : defaultValue;
+		return (encryptedValue != null) ? encryptedValue : defaultValue;
 	}
 
 	@Override
