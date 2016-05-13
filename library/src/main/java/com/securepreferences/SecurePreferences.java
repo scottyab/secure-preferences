@@ -189,7 +189,7 @@ public class SecurePreferences implements SharedPreferences {
 
     /**
      * if a prefFilename is not defined the getDefaultSharedPreferences is used.
-     * @param context
+	 * @param context should be ApplicationContext not Activity
      * @return
      */
     private SharedPreferences getSharedPreferenceFile(Context context, String prefFilename) {
@@ -214,8 +214,8 @@ public class SecurePreferences implements SharedPreferences {
 
     /**
      * Uses device and application values to generate the pref key for the encryption key
-     * @param context
-     * @param iterationCount
+	 * @param context should be ApplicationContext not Activity
+	 * @param iterationCount The iteration count for the keys generation
 	 * @return String to be used as the AESkey Pref key
      * @throws GeneralSecurityException if something goes wrong in generation
      */
@@ -228,6 +228,13 @@ public class SecurePreferences implements SharedPreferences {
 		return hashPrefKey(generatedKeyName.toString());
 	}
 
+
+	/**
+	 * Uses device and application values to generate the pref key for the encryption key
+	 * @param context should be ApplicationContext not Activity
+	 * @return String to be used as the AESkey Pref key
+	 * @throws GeneralSecurityException if something goes wrong in generation
+	 */
 	public String generateAesKeyName(Context context) throws GeneralSecurityException {
 		return generateAesKeyName(context, ORIGINAL_ITERATION_COUNT);
 	}
@@ -320,16 +327,12 @@ public class SecurePreferences implements SharedPreferences {
             AesCbcWithIntegrity.CipherTextIvMac cipherTextIvMac = new AesCbcWithIntegrity.CipherTextIvMac(ciphertext);
 
             return AesCbcWithIntegrity.decryptString(cipherTextIvMac, keys);
-        } catch (GeneralSecurityException e) {
-            if (sLoggingEnabled) {
-                Log.w(TAG, "decrypt", e);
-            }
-        } catch (UnsupportedEncodingException e) {
+        } catch (GeneralSecurityException | UnsupportedEncodingException e) {
             if (sLoggingEnabled) {
                 Log.w(TAG, "decrypt", e);
             }
         }
-        return null;
+		return null;
     }
 
     /**
@@ -470,11 +473,13 @@ public class SecurePreferences implements SharedPreferences {
      * Note: the pref keys will remain the same as they are SHA256 hashes.
      *
      * @param newPassword
+	 * @param context should be ApplicationContext not Activity
+	 * @param iterationCount The iteration count for the keys generation
      */
     public void handlePasswordChange(String newPassword, Context context, int iterationCount) throws GeneralSecurityException {
 
         final byte[] salt = getDeviceSerialNumber(context).getBytes();
-        AesCbcWithIntegrity.SecretKeys newKey= AesCbcWithIntegrity.generateKeyFromPassword(newPassword,salt, iterationCount);
+        AesCbcWithIntegrity.SecretKeys newKey= AesCbcWithIntegrity.generateKeyFromPassword(newPassword, salt, iterationCount);
 
         Map<String, ?> allOfThePrefs = sharedPreferences.getAll();
         Map<String, String> unencryptedPrefs = new HashMap<String, String>(allOfThePrefs.size());
