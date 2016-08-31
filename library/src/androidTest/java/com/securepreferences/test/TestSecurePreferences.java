@@ -50,7 +50,6 @@ public class TestSecurePreferences extends AndroidTestCase {
     }
 
 
-
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
@@ -96,9 +95,9 @@ public class TestSecurePreferences extends AndroidTestCase {
         Map<String, ?> allTheSecurePrefs = securePrefs.getAll();
         Map<String, ?> allThePrefs = normalPrefs.getAll();
 
-            assertTrue(
-                    "the preference file should not contain any enteries as the key is generated via user password.",
-                    allThePrefs.isEmpty());
+        assertTrue(
+                "the preference file should not contain any enteries as the key is generated via user password.",
+                allThePrefs.isEmpty());
 
 
         //clean up here as pref file created for each test
@@ -115,11 +114,11 @@ public class TestSecurePreferences extends AndroidTestCase {
 
         SecurePreferences securePrefs = new SecurePreferences(getContext(), "password", USER_PREFS_WITH_PASSWORD);
         securePrefs.edit().putString(key, value).commit();
-        securePrefs=null;
+        securePrefs = null;
 
         SecurePreferences securePrefsWithWrongPass = new SecurePreferences(getContext(), "incorrectpassword", USER_PREFS_WITH_PASSWORD);
         String myValue = securePrefsWithWrongPass.getString(key, null);
-        if(value.equals(myValue)){
+        if (value.equals(myValue)) {
             fail("Using the wrong password, should not return the decrpyted value");
         }
 
@@ -149,18 +148,18 @@ public class TestSecurePreferences extends AndroidTestCase {
 
     }
 
-	public void testSaveString() {
+    public void testSaveString() {
 
-		final String key = "fooString";
-		final String value = "bar";
-		SharedPreferences securePrefs = new SecurePreferences(getContext());
-		Editor edit = securePrefs.edit();
-		edit.putString(key, value);
-		edit.commit();
+        final String key = "fooString";
+        final String value = "bar";
+        SharedPreferences securePrefs = new SecurePreferences(getContext());
+        Editor edit = securePrefs.edit();
+        edit.putString(key, value);
+        edit.commit();
 
-		String retrievedValue = securePrefs.getString(key, null);
-		assertEquals(value, retrievedValue);
-	}
+        String retrievedValue = securePrefs.getString(key, null);
+        assertEquals(value, retrievedValue);
+    }
 
     public void testSaveStringInCustomPref() {
 
@@ -193,52 +192,52 @@ public class TestSecurePreferences extends AndroidTestCase {
     }
 
     public void testSaveFloat() {
-		final String key = "foofloat";
-		final float value = 0.99f;
-		SharedPreferences securePrefs = new SecurePreferences(getContext());
-		Editor edit = securePrefs.edit();
-		edit.putFloat(key, value);
-		edit.commit();
+        final String key = "foofloat";
+        final float value = 0.99f;
+        SharedPreferences securePrefs = new SecurePreferences(getContext());
+        Editor edit = securePrefs.edit();
+        edit.putFloat(key, value);
+        edit.commit();
 
-		float retrievedValue = securePrefs.getFloat(key, -1);
+        float retrievedValue = securePrefs.getFloat(key, -1);
 
-		assertEquals(value, retrievedValue);
-	}
+        assertEquals(value, retrievedValue);
+    }
 
-	public void testSaveUnencrpyted() {
-		final String key = "unencryptedkey";
-		final String value = "bar";
+    public void testSaveUnencrpyted() {
+        final String key = "unencryptedkey";
+        final String value = "bar";
 
-		SecurePreferences securePrefs = new SecurePreferences(getContext());
-		SecurePreferences.Editor secureEdit = securePrefs
-				.edit();
-		secureEdit.putUnencryptedString(key, value);
-		secureEdit.commit();
+        SecurePreferences securePrefs = new SecurePreferences(getContext());
+        SecurePreferences.Editor secureEdit = securePrefs
+                .edit();
+        secureEdit.putUnencryptedString(key, value);
+        secureEdit.commit();
 
-		String retrievedValue = securePrefs.getEncryptedString(key, null);
-		assertEquals(value, retrievedValue);
-	}
+        String retrievedValue = securePrefs.getEncryptedString(key, null);
+        assertEquals(value, retrievedValue);
+    }
 
-	public void testKeyIsEncrpyted() {
+    public void testKeyIsEncrpyted() {
 
 
-		SecurePreferences securePrefs = new SecurePreferences(getContext());
-		SecurePreferences.Editor secureEdit = securePrefs
-				.edit();
-		secureEdit.putUnencryptedString(DEFAULT_KEY, DEFAULT_VALUE);
-		secureEdit.commit();
+        SecurePreferences securePrefs = new SecurePreferences(getContext());
+        SecurePreferences.Editor secureEdit = securePrefs
+                .edit();
+        secureEdit.putUnencryptedString(DEFAULT_KEY, DEFAULT_VALUE);
+        secureEdit.commit();
 
-		// the key should still be encrypted so the normal prefs should fail to
-		// find 'key'
-		SharedPreferences normalPrefs = PreferenceManager
-				.getDefaultSharedPreferences(getContext());
-		String retrievedValue = normalPrefs.getString(DEFAULT_KEY, null);
+        // the key should still be encrypted so the normal prefs should fail to
+        // find 'key'
+        SharedPreferences normalPrefs = PreferenceManager
+                .getDefaultSharedPreferences(getContext());
+        String retrievedValue = normalPrefs.getString(DEFAULT_KEY, null);
 
-		assertNull(DEFAULT_VALUE, retrievedValue);
+        assertNull(DEFAULT_VALUE, retrievedValue);
 
-	}
+    }
 
-    public void testDestroyKeys(){
+    public void testDestroyKeys() {
         SecurePreferences securePrefs = new SecurePreferences(getContext());
         Editor edit = securePrefs.edit();
         edit.putString(DEFAULT_KEY, DEFAULT_VALUE);
@@ -249,7 +248,7 @@ public class TestSecurePreferences extends AndroidTestCase {
         try {
             String retrievedValue = securePrefs.getString(DEFAULT_KEY, null);
             fail("Null pointer should be thrown not retrievedValue:" + retrievedValue);
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
 
         }
     }
@@ -280,7 +279,7 @@ public class TestSecurePreferences extends AndroidTestCase {
         Editor editor = securePrefs.edit();
         final String key = "pwchgfoo";
         final String value = "pwchgbar";
-        editor.putString(key,value);
+        editor.putString(key, value);
         editor.commit();
 
         String valueFromPrefs = securePrefs.getString(key, null);
@@ -302,7 +301,7 @@ public class TestSecurePreferences extends AndroidTestCase {
         Editor editor = securePrefs.edit();
         final String key = "pwchgfoo";
         final String value = "pwchgbar";
-        editor.putString(key,value);
+        editor.putString(key, value);
         editor.commit();
 
         String cipherText = securePrefs.getEncryptedString(key, null);
@@ -321,12 +320,32 @@ public class TestSecurePreferences extends AndroidTestCase {
     }
 
 
+    public void testPutStringAfterClear() {
+        final String key = "fooString";
+        final String value = "bar";
+        SharedPreferences securePrefs = new SecurePreferences(getContext());
+        Editor edit = securePrefs.edit();
+        edit.putString(key, value);
+        edit.commit();
+        edit.clear();
+
+        edit.putString(key, value);
+
+        SharedPreferences securePrefsAfterClear = new SecurePreferences(getContext());
+
+        String retrievedValue = securePrefsAfterClear.getString(key, null);
+
+
+        assertEquals(value, retrievedValue);
+    }
+
+
     public void testChangeIterationCount() {
         SecurePreferences securePrefs = new SecurePreferences(getContext(), "myfirstpassword", USER_PREFS_WITH_PASSWORD);
         Editor editor = securePrefs.edit();
         final String key = "pwchgfoo";
         final String value = "pwchgbar";
-        editor.putString(key,value);
+        editor.putString(key, value);
         editor.commit();
 
         String cipherText = securePrefs.getEncryptedString(key, null);
@@ -346,23 +365,24 @@ public class TestSecurePreferences extends AndroidTestCase {
 
     /**
      * Load the pref xml file and read through to see if it has any <string tags.
+     *
      * @param prefFileName
      * @return true if contains | false if none are found
      */
-    private boolean checkRawPrefFileIsEmptyOfStringEnteries(String prefFileName) throws IOException{
-        String pattern =  "<string";
+    private boolean checkRawPrefFileIsEmptyOfStringEnteries(String prefFileName) throws IOException {
+        String pattern = "<string";
         File f = getPrefFile(prefFileName);
 
-        if (f!=null && f.exists()){
-                BufferedReader br = new BufferedReader(new FileReader(f));
-                String line = "";
-                while((line = br.readLine()) != null) {
-                    if(line.contains(pattern)){
-                        Log.d(TAG, "line contains " + pattern);
-                        return true;
-                    }
+        if (f != null && f.exists()) {
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            String line = "";
+            while ((line = br.readLine()) != null) {
+                if (line.contains(pattern)) {
+                    Log.d(TAG, "line contains " + pattern);
+                    return true;
                 }
-        }else{
+            }
+        } else {
             Log.d(TAG, "File not out to search: " + prefFileName);
 
         }
@@ -370,11 +390,11 @@ public class TestSecurePreferences extends AndroidTestCase {
     }
 
 
-    private String generatePrefFileNameForTest(){
+    private String generatePrefFileNameForTest() {
         return UUID.randomUUID().toString();
     }
 
-    private File getPrefFile(String prefFileName){
+    private File getPrefFile(String prefFileName) {
         ///data/data/com.securepreferences.test/shared_prefs;
         String sharedPrefFolderPath = getContext().getFilesDir().getParent() + "/shared_prefs";
 
@@ -384,20 +404,21 @@ public class TestSecurePreferences extends AndroidTestCase {
 
     private void deletePrefFile(String prefFileName) {
         File f = getPrefFile(prefFileName);
-        if (f!=null && f.exists()){
+        if (f != null && f.exists()) {
             boolean result = f.delete();
-            if(result){
-                Log.d(TAG, prefFileName+" deleted ok");
-            }else{
-                Log.d(TAG, prefFileName+" NOT deleted :(");
+            if (result) {
+                Log.d(TAG, prefFileName + " deleted ok");
+            } else {
+                Log.d(TAG, prefFileName + " NOT deleted :(");
             }
-        }else{
-            Log.d(TAG, prefFileName+" NOT deleted as doesn't exist");
+        } else {
+            Log.d(TAG, prefFileName + " NOT deleted as doesn't exist");
         }
     }
 
     /**
      * tear down
+     *
      * @param prefs
      */
     private void clearPrefs(SharedPreferences prefs) {

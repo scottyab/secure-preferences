@@ -585,6 +585,8 @@ public class SecurePreferences implements SharedPreferences {
         @Override
         public SharedPreferences.Editor clear() {
             mEditor.clear();
+            destroyKeys();
+
             return this;
         }
 
