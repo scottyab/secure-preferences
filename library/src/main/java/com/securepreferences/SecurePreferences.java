@@ -15,6 +15,7 @@
  */
 package com.securepreferences;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -48,12 +49,12 @@ import java.util.Set;
  * even encrypted data may still be susceptible to attacks, especially on rooted devices
  * <p>
  * Recommended to use with user password, in which case the key will be derived from the password and not stored in the file.
- *
+ * <p>
  * TODO: Handle OnSharedPreferenceChangeListener
  */
 public class SecurePreferences implements SharedPreferences {
 
-	private static final int ORIGINAL_ITERATION_COUNT = 10000;
+    private static final int ORIGINAL_ITERATION_COUNT = 10000;
 
     //the backing pref file
     private SharedPreferences sharedPreferences;
@@ -62,12 +63,6 @@ public class SecurePreferences implements SharedPreferences {
     private AesCbcWithIntegrity.SecretKeys keys;
 
     private static boolean sLoggingEnabled = false;
-
-    // links user's OnSharedPreferenceChangeListener to secure OnSharedPreferenceChangeListener
-    /*
-    private static HashMap<OnSharedPreferenceChangeListener, OnSharedPreferenceChangeListener>
-            sOnSharedPreferenceChangeListeners;
-    */
 
     private static final String TAG = SecurePreferences.class.getName();
 
@@ -85,20 +80,17 @@ public class SecurePreferences implements SharedPreferences {
     }
 
 
-	/**
-	 *
-	 * @param context should be ApplicationContext not Activity
-	 * @param iterationCount The iteration count for the keys generation
+    /**
+     * @param context        should be ApplicationContext not Activity
+     * @param iterationCount The iteration count for the keys generation
      */
-	public SecurePreferences(Context context, int iterationCount) {
-		this(context, "", null, iterationCount);
-	}
-
+    public SecurePreferences(Context context, int iterationCount) {
+        this(context, "", null, iterationCount);
+    }
 
     /**
-     *
-     * @param context should be ApplicationContext not Activity
-     * @param password user password/code used to generate encryption key.
+     * @param context            should be ApplicationContext not Activity
+     * @param password           user password/code used to generate encryption key.
      * @param sharedPrefFilename name of the shared pref file. If null use the default shared prefs
      */
     public SecurePreferences(Context context, final String password, final String sharedPrefFilename) {
@@ -106,21 +98,18 @@ public class SecurePreferences implements SharedPreferences {
     }
 
 
-	/**
-	 *
-	 * @param context should be ApplicationContext not Activity
-	 * @param iterationCount The iteration count for the keys generation
-	 */
-	public SecurePreferences(Context context, final String password, final String sharedPrefFilename, int iterationCount) {
-		this(context, null, password, sharedPrefFilename, iterationCount);
-	}
+    /**
+     * @param context        should be ApplicationContext not Activity
+     * @param iterationCount The iteration count for the keys generation
+     */
+    public SecurePreferences(Context context, final String password, final String sharedPrefFilename, int iterationCount) {
+        this(context, null, password, sharedPrefFilename, iterationCount);
+    }
 
 
     /**
-     *
-     *
-     * @param context should be ApplicationContext not Activity
-     * @param secretKey that you've generated
+     * @param context            should be ApplicationContext not Activity
+     * @param secretKey          that you've generated
      * @param sharedPrefFilename name of the shared pref file. If null use the default shared prefs
      */
     public SecurePreferences(Context context, final AesCbcWithIntegrity.SecretKeys secretKey, final String sharedPrefFilename) {
@@ -132,10 +121,9 @@ public class SecurePreferences implements SharedPreferences {
             sharedPreferences = getSharedPreferenceFile(context, sharedPrefFilename);
         }
 
-        //
-        if (secretKey!=null) {
+        if (secretKey != null) {
             keys = secretKey;
-        }else if(TextUtils.isEmpty(password)) {
+        } else if (TextUtils.isEmpty(password)) {
             // Initialize or create encryption key
             try {
                 final String key = generateAesKeyName(context, iterationCount);
@@ -145,14 +133,14 @@ public class SecurePreferences implements SharedPreferences {
                     keys = AesCbcWithIntegrity.generateKey();
                     //saving new key
                     boolean committed = sharedPreferences.edit().putString(key, keys.toString()).commit();
-                    if(!committed){
+                    if (!committed) {
                         Log.w(TAG, "Key not committed to prefs");
                     }
-                }else{
+                } else {
                     keys = AesCbcWithIntegrity.keys(keyAsString);
                 }
 
-                if(keys ==null){
+                if (keys == null) {
                     throw new GeneralSecurityException("Problem generating Key");
                 }
 
@@ -162,13 +150,13 @@ public class SecurePreferences implements SharedPreferences {
                 }
                 throw new IllegalStateException(e);
             }
-        }else{
+        } else {
             //use the password to generate the key
             try {
                 final byte[] salt = getDeviceSerialNumber(context).getBytes();
                 keys = AesCbcWithIntegrity.generateKeyFromPassword(password, salt, iterationCount);
 
-                if(keys == null){
+                if (keys == null) {
                     throw new GeneralSecurityException("Problem generating Key From Password");
                 }
             } catch (GeneralSecurityException e) {
@@ -178,114 +166,106 @@ public class SecurePreferences implements SharedPreferences {
                 throw new IllegalStateException(e);
             }
         }
-        // initialize OnSecurePreferencesChangeListener HashMap
-        /*
-        sOnSharedPreferenceChangeListeners =
-                new HashMap<OnSharedPreferenceChangeListener, OnSharedPreferenceChangeListener>(10);
-        */
     }
-
 
 
     /**
      * if a prefFilename is not defined the getDefaultSharedPreferences is used.
-	 * @param context should be ApplicationContext not Activity
+     *
+     * @param context should be ApplicationContext not Activity
      * @return
      */
     private SharedPreferences getSharedPreferenceFile(Context context, String prefFilename) {
         this.sharedPrefFilename = prefFilename;
 
-        if(TextUtils.isEmpty(prefFilename)) {
+        if (TextUtils.isEmpty(prefFilename)) {
             return PreferenceManager
                     .getDefaultSharedPreferences(context);
-        }
-        else{
-          return context.getSharedPreferences(prefFilename, Context.MODE_PRIVATE);
+        } else {
+            return context.getSharedPreferences(prefFilename, Context.MODE_PRIVATE);
         }
     }
 
     /**
      * nulls in memory keys
      */
-    public void destroyKeys(){
-        keys =null;
+    public void destroyKeys() {
+        keys = null;
     }
 
 
     /**
      * Uses device and application values to generate the pref key for the encryption key
-	 * @param context should be ApplicationContext not Activity
-	 * @param iterationCount The iteration count for the keys generation
-	 * @return String to be used as the AESkey Pref key
+     *
+     * @param context        should be ApplicationContext not Activity
+     * @param iterationCount The iteration count for the keys generation
+     * @return String to be used as the AESkey Pref key
      * @throws GeneralSecurityException if something goes wrong in generation
      */
-	public String generateAesKeyName(Context context, int iterationCount) throws GeneralSecurityException
-    {
-		final String password = context.getPackageName();
-		final byte[] salt = getDeviceSerialNumber(context).getBytes();
+    private String generateAesKeyName(Context context, int iterationCount) throws GeneralSecurityException {
+        final String password = context.getPackageName();
+        final byte[] salt = getDeviceSerialNumber(context).getBytes();
         AesCbcWithIntegrity.SecretKeys generatedKeyName = AesCbcWithIntegrity.generateKeyFromPassword(password, salt, iterationCount);
 
-		return hashPrefKey(generatedKeyName.toString());
-	}
-
-
-	/**
-	 * Uses device and application values to generate the pref key for the encryption key
-	 * @param context should be ApplicationContext not Activity
-	 * @return String to be used as the AESkey Pref key
-	 * @throws GeneralSecurityException if something goes wrong in generation
-	 */
-	public String generateAesKeyName(Context context) throws GeneralSecurityException {
-		return generateAesKeyName(context, ORIGINAL_ITERATION_COUNT);
-	}
-
+        return hashPrefKey(generatedKeyName.toString());
+    }
 
 
     /**
-	 * Gets the hardware serial number of this device.
-	 * 
-	 * @return serial number or Settings.Secure.ANDROID_ID if not available.
-	 */
-	private static String getDeviceSerialNumber(Context context) {
-		// We're using the Reflection API because Build.SERIAL is only available
-		// since API Level 9 (Gingerbread, Android 2.3).
-		try {
-			String deviceSerial = (String) Build.class.getField("SERIAL").get(
-					null);
-			if (TextUtils.isEmpty(deviceSerial)) {
-				return Settings.Secure.getString(
-						context.getContentResolver(),
-						Settings.Secure.ANDROID_ID);
-			}else {
+     * Uses device and application values to generate the pref key for the encryption key
+     *
+     * @param context should be ApplicationContext not Activity
+     * @return String to be used as the AESkey Pref key
+     * @throws GeneralSecurityException if something goes wrong in generation
+     */
+    private String generateAesKeyName(Context context) throws GeneralSecurityException {
+        return generateAesKeyName(context, ORIGINAL_ITERATION_COUNT);
+    }
+
+
+    /**
+     * Gets the hardware serial number of this device.
+     *
+     * @return serial number or Settings.Secure.ANDROID_ID if not available.
+     */
+    @SuppressLint("HardwareIds")
+    private static String getDeviceSerialNumber(Context context) {
+        // We're using the Reflection API because Build.SERIAL is only available
+        // since API Level 9 (Gingerbread, Android 2.3).
+        try {
+            String deviceSerial = (String) Build.class.getField("SERIAL").get(
+                    null);
+            if (TextUtils.isEmpty(deviceSerial)) {
+                return Settings.Secure.getString(
+                        context.getContentResolver(),
+                        Settings.Secure.ANDROID_ID);
+            } else {
                 return deviceSerial;
             }
-		} catch (Exception ignored) {
-			// Fall back  to Android_ID
-			return Settings.Secure.getString(context.getContentResolver(),
-					Settings.Secure.ANDROID_ID);
-		}
-	}
+        } catch (Exception ignored) {
+            // Fall back  to Android_ID
+            return Settings.Secure.getString(context.getContentResolver(),
+                    Settings.Secure.ANDROID_ID);
+        }
+    }
 
 
     /**
      * The Pref keys must be same each time so we're using a hash to obscure the stored value
+     *
      * @param prefKey
      * @return SHA-256 Hash of the preference key
      */
-    public static String hashPrefKey(String prefKey)  {
+    public static String hashPrefKey(String prefKey) {
         final MessageDigest digest;
         try {
             digest = MessageDigest.getInstance("SHA-256");
-        byte[] bytes = prefKey.getBytes("UTF-8");
-        digest.update(bytes, 0, bytes.length);
+            byte[] bytes = prefKey.getBytes("UTF-8");
+            digest.update(bytes, 0, bytes.length);
 
-        return Base64.encodeToString(digest.digest(), AesCbcWithIntegrity.BASE64_FLAGS);
+            return Base64.encodeToString(digest.digest(), AesCbcWithIntegrity.BASE64_FLAGS);
 
-        } catch (NoSuchAlgorithmException e) {
-            if (sLoggingEnabled) {
-                Log.w(TAG, "Problem generating hash", e);
-            }
-        } catch (UnsupportedEncodingException e) {
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
             if (sLoggingEnabled) {
                 Log.w(TAG, "Problem generating hash", e);
             }
@@ -294,19 +274,18 @@ public class SecurePreferences implements SharedPreferences {
     }
 
 
-
-	private String encrypt(String cleartext) {
-		if (TextUtils.isEmpty(cleartext)) {
-			return cleartext;
-		}
-		try {
-			return AesCbcWithIntegrity.encrypt(cleartext, keys).toString();
-		} catch (GeneralSecurityException e) {
-			if (sLoggingEnabled) {
-				Log.w(TAG, "encrypt", e);
-			}
-			return null;
-		} catch (UnsupportedEncodingException e) {
+    private String encrypt(String cleartext) {
+        if (TextUtils.isEmpty(cleartext)) {
+            return cleartext;
+        }
+        try {
+            return AesCbcWithIntegrity.encrypt(cleartext, keys).toString();
+        } catch (GeneralSecurityException e) {
+            if (sLoggingEnabled) {
+                Log.w(TAG, "encrypt", e);
+            }
+            return null;
+        } catch (UnsupportedEncodingException e) {
             if (sLoggingEnabled) {
                 Log.w(TAG, "encrypt", e);
             }
@@ -315,7 +294,6 @@ public class SecurePreferences implements SharedPreferences {
     }
 
     /**
-     *
      * @param ciphertext
      * @return decrypted plain text, unless decryption fails, in which case null
      */
@@ -332,165 +310,162 @@ public class SecurePreferences implements SharedPreferences {
                 Log.w(TAG, "decrypt", e);
             }
         }
-		return null;
+        return null;
     }
 
     /**
-     *
      * @return map of with decrypted values (excluding the key if present)
      */
-	@Override
-	public Map<String, String> getAll() {
+    @Override
+    public Map<String, String> getAll() {
         //wont be null as per http://androidxref.com/5.1.0_r1/xref/frameworks/base/core/java/android/app/SharedPreferencesImpl.java
-		final Map<String, ?> encryptedMap = sharedPreferences.getAll();
-		final Map<String, String> decryptedMap = new HashMap<String, String>(
-				encryptedMap.size());
-            for (Entry<String, ?> entry : encryptedMap.entrySet()) {
-                try {
-                    Object cipherText = entry.getValue();
-                    //don't include the key
-                    if(cipherText!=null && !cipherText.equals(keys.toString())){
-                        //the prefs should all be strings
-                        decryptedMap.put(entry.getKey(),
-                                decrypt(cipherText.toString()));
-                    }
-                } catch (Exception e) {
-                    if (sLoggingEnabled) {
-                        Log.w(TAG, "error during getAll", e);
-                    }
-                    // Ignore issues that unencrypted values and use instead raw cipher text string
+        final Map<String, ?> encryptedMap = sharedPreferences.getAll();
+        final Map<String, String> decryptedMap = new HashMap<String, String>(
+                encryptedMap.size());
+        for (Entry<String, ?> entry : encryptedMap.entrySet()) {
+            try {
+                Object cipherText = entry.getValue();
+                //don't include the key
+                if (cipherText != null && !cipherText.equals(keys.toString())) {
+                    //the prefs should all be strings
                     decryptedMap.put(entry.getKey(),
-                            entry.getValue().toString());
+                            decrypt(cipherText.toString()));
                 }
+            } catch (Exception e) {
+                if (sLoggingEnabled) {
+                    Log.w(TAG, "error during getAll", e);
+                }
+                // Ignore issues that unencrypted values and use instead raw cipher text string
+                decryptedMap.put(entry.getKey(),
+                        entry.getValue().toString());
             }
-            return decryptedMap;
-	}
+        }
+        return decryptedMap;
+    }
 
-	@Override
-	public String getString(String key, String defaultValue) {
-		final String encryptedValue = sharedPreferences.getString(
-				SecurePreferences.hashPrefKey(key), null);
-		return (encryptedValue != null) ? decrypt(encryptedValue) : defaultValue;
-	}
-
-	/**
-	 * 
-	 * Added to get a values as as it can be useful to store values that are
-	 * already encrypted and encoded
-	 * 
-	 * @param key
-	 * @param defaultValue
-	 * @return Encrypted value of the key or the defaultValue if
-	 */
-	public String getEncryptedString(String key, String defaultValue) {
-		final String encryptedValue = sharedPreferences.getString(
-				SecurePreferences.hashPrefKey(key), null);
-		return (encryptedValue != null) ? encryptedValue : defaultValue;
-	}
-
-	@Override
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	public Set<String> getStringSet(String key, Set<String> defaultValues) {
-		final Set<String> encryptedSet = sharedPreferences.getStringSet(
-				SecurePreferences.hashPrefKey(key), null);
-		if (encryptedSet == null) {
-			return defaultValues;
-		}
-		final Set<String> decryptedSet = new HashSet<String>(
-				encryptedSet.size());
-		for (String encryptedValue : encryptedSet) {
-			decryptedSet.add(decrypt(encryptedValue));
-		}
-		return decryptedSet;
-	}
-
-	@Override
-	public int getInt(String key, int defaultValue) {
-		final String encryptedValue = sharedPreferences.getString(
+    @Override
+    public String getString(String key, String defaultValue) {
+        final String encryptedValue = sharedPreferences.getString(
                 SecurePreferences.hashPrefKey(key), null);
-		if (encryptedValue == null) {
-			return defaultValue;
-		}
-		try {
-			return Integer.parseInt(decrypt(encryptedValue));
-		} catch (NumberFormatException e) {
-			throw new ClassCastException(e.getMessage());
-		}
-	}
+        return (encryptedValue != null) ? decrypt(encryptedValue) : defaultValue;
+    }
 
-	@Override
-	public long getLong(String key, long defaultValue) {
-		final String encryptedValue = sharedPreferences.getString(
-				SecurePreferences.hashPrefKey(key), null);
-		if (encryptedValue == null) {
-			return defaultValue;
-		}
-		try {
-			return Long.parseLong(decrypt(encryptedValue));
-		} catch (NumberFormatException e) {
-			throw new ClassCastException(e.getMessage());
-		}
-	}
+    /**
+     * Added to get a values as as it can be useful to store values that are
+     * already encrypted and encoded
+     *
+     * @param key          pref key
+     * @param defaultValue
+     * @return Encrypted value of the key or the defaultValue if no value exists
+     */
+    public String getEncryptedString(String key, String defaultValue) {
+        final String encryptedValue = sharedPreferences.getString(
+                SecurePreferences.hashPrefKey(key), null);
+        return (encryptedValue != null) ? encryptedValue : defaultValue;
+    }
 
-	@Override
-	public float getFloat(String key, float defaultValue) {
-		final String encryptedValue = sharedPreferences.getString(
-				SecurePreferences.hashPrefKey(key), null);
-		if (encryptedValue == null) {
-			return defaultValue;
-		}
-		try {
-			return Float.parseFloat(decrypt(encryptedValue));
-		} catch (NumberFormatException e) {
-			throw new ClassCastException(e.getMessage());
-		}
-	}
+    @Override
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public Set<String> getStringSet(String key, Set<String> defaultValues) {
+        final Set<String> encryptedSet = sharedPreferences.getStringSet(
+                SecurePreferences.hashPrefKey(key), null);
+        if (encryptedSet == null) {
+            return defaultValues;
+        }
+        final Set<String> decryptedSet = new HashSet<String>(
+                encryptedSet.size());
+        for (String encryptedValue : encryptedSet) {
+            decryptedSet.add(decrypt(encryptedValue));
+        }
+        return decryptedSet;
+    }
 
-	@Override
-	public boolean getBoolean(String key, boolean defaultValue) {
-		final String encryptedValue = sharedPreferences.getString(
-				SecurePreferences.hashPrefKey(key), null);
-		if (encryptedValue == null) {
-			return defaultValue;
-		}
-		try {
-			return Boolean.parseBoolean(decrypt(encryptedValue));
-		} catch (NumberFormatException e) {
-			throw new ClassCastException(e.getMessage());
-		}
-	}
+    @Override
+    public int getInt(String key, int defaultValue) {
+        final String encryptedValue = sharedPreferences.getString(
+                SecurePreferences.hashPrefKey(key), null);
+        if (encryptedValue == null) {
+            return defaultValue;
+        }
+        try {
+            return Integer.parseInt(decrypt(encryptedValue));
+        } catch (NumberFormatException e) {
+            throw new ClassCastException(e.getMessage());
+        }
+    }
 
-	@Override
-	public boolean contains(String key) {
-		return sharedPreferences.contains(SecurePreferences.hashPrefKey(key));
-	}
+    @Override
+    public long getLong(String key, long defaultValue) {
+        final String encryptedValue = sharedPreferences.getString(
+                SecurePreferences.hashPrefKey(key), null);
+        if (encryptedValue == null) {
+            return defaultValue;
+        }
+        try {
+            return Long.parseLong(decrypt(encryptedValue));
+        } catch (NumberFormatException e) {
+            throw new ClassCastException(e.getMessage());
+        }
+    }
+
+    @Override
+    public float getFloat(String key, float defaultValue) {
+        final String encryptedValue = sharedPreferences.getString(
+                SecurePreferences.hashPrefKey(key), null);
+        if (encryptedValue == null) {
+            return defaultValue;
+        }
+        try {
+            return Float.parseFloat(decrypt(encryptedValue));
+        } catch (NumberFormatException e) {
+            throw new ClassCastException(e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean getBoolean(String key, boolean defaultValue) {
+        final String encryptedValue = sharedPreferences.getString(
+                SecurePreferences.hashPrefKey(key), null);
+        if (encryptedValue == null) {
+            return defaultValue;
+        }
+        try {
+            return Boolean.parseBoolean(decrypt(encryptedValue));
+        } catch (NumberFormatException e) {
+            throw new ClassCastException(e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean contains(String key) {
+        return sharedPreferences.contains(SecurePreferences.hashPrefKey(key));
+    }
 
 
     /**
      * Cycle through the unencrypt all the current prefs to mem cache, clear, then encypt with key generated from new password.
      * This method can be used if switching from the generated key to a key derived from user password
-     *
+     * <p>
      * Note: the pref keys will remain the same as they are SHA256 hashes.
      *
      * @param newPassword
-	 * @param context should be ApplicationContext not Activity
-	 * @param iterationCount The iteration count for the keys generation
+     * @param context        should be ApplicationContext not Activity
+     * @param iterationCount The iteration count for the keys generation
      */
+    @SuppressLint("CommitPrefEdits")
     public void handlePasswordChange(String newPassword, Context context, int iterationCount) throws GeneralSecurityException {
 
         final byte[] salt = getDeviceSerialNumber(context).getBytes();
-        AesCbcWithIntegrity.SecretKeys newKey= AesCbcWithIntegrity.generateKeyFromPassword(newPassword, salt, iterationCount);
+        AesCbcWithIntegrity.SecretKeys newKey = AesCbcWithIntegrity.generateKeyFromPassword(newPassword, salt, iterationCount);
 
         Map<String, ?> allOfThePrefs = sharedPreferences.getAll();
         Map<String, String> unencryptedPrefs = new HashMap<String, String>(allOfThePrefs.size());
-        Iterator<String> keysIterator = allOfThePrefs.keySet().iterator();
         //iterate through the current prefs unencrypting each one
-        while(keysIterator.hasNext()) {
-            String prefKey = keysIterator.next();
+        for (String prefKey : allOfThePrefs.keySet()) {
             Object prefValue = allOfThePrefs.get(prefKey);
-            if(prefValue instanceof String){
+            if (prefValue instanceof String) {
                 //all the encrypted values will be Strings
-                final String prefValueString = (String)prefValue;
+                final String prefValueString = (String) prefValue;
                 final String plainTextPrefValue = decrypt(prefValueString);
                 unencryptedPrefs.put(prefKey, plainTextPrefValue);
             }
@@ -522,135 +497,132 @@ public class SecurePreferences implements SharedPreferences {
         updatedEditor.commit();
     }
 
-	public void handlePasswordChange(String newPassword, Context context) throws GeneralSecurityException {
-		handlePasswordChange(newPassword, context, ORIGINAL_ITERATION_COUNT);
-	}
+    public void handlePasswordChange(String newPassword, Context context) throws GeneralSecurityException {
+        handlePasswordChange(newPassword, context, ORIGINAL_ITERATION_COUNT);
+    }
 
 
+    @Override
+    public Editor edit() {
+        return new Editor();
+    }
 
-	@Override
-	public Editor edit() {
-		return new Editor();
-	}
+    /**
+     * Wrapper for Android's {@link android.content.SharedPreferences.Editor}.
+     * <p>
+     * Used for modifying values in a {@link SecurePreferences} object. All
+     * changes you make in an editor are batched, and not copied back to the
+     * original {@link SecurePreferences} until you call {@link #commit()} or
+     * {@link #apply()}.
+     */
+    public final class Editor implements SharedPreferences.Editor {
+        private SharedPreferences.Editor mEditor;
 
-	/**
-	 * Wrapper for Android's {@link android.content.SharedPreferences.Editor}.
-	 * <p>
-	 * Used for modifying values in a {@link SecurePreferences} object. All
-	 * changes you make in an editor are batched, and not copied back to the
-	 * original {@link SecurePreferences} until you call {@link #commit()} or
-	 * {@link #apply()}.
-	 */
-	public final class Editor implements SharedPreferences.Editor {
-		private SharedPreferences.Editor mEditor;
+        /**
+         * Constructor.
+         */
+        private Editor() {
+            mEditor = sharedPreferences.edit();
+        }
 
-		/**
-		 * Constructor.
-		 */
-		private Editor() {
-			mEditor = sharedPreferences.edit();
-		}
-
-		@Override
-		public SharedPreferences.Editor putString(String key, String value) {
-			mEditor.putString(SecurePreferences.hashPrefKey(key),
+        @Override
+        public SharedPreferences.Editor putString(String key, String value) {
+            mEditor.putString(SecurePreferences.hashPrefKey(key),
                     encrypt(value));
-			return this;
-		}
+            return this;
+        }
 
-		/**
-		 * This is useful for storing values that have be encrypted by something
-		 * else or for testing
-		 * 
-		 * @param key
-		 *            - encrypted as usual
-		 * @param value
-		 *            will not be encrypted
-		 * @return
-		 */
-		public SharedPreferences.Editor putUnencryptedString(String key,
-				String value) {
-			mEditor.putString(SecurePreferences.hashPrefKey(key), value);
-			return this;
-		}
+        /**
+         * This is useful for storing values that have be encrypted by something
+         * else or for testing
+         *
+         * @param key   - encrypted as usual
+         * @param value will not be encrypted
+         * @return
+         */
+        public SharedPreferences.Editor putUnencryptedString(String key,
+                                                             String value) {
+            mEditor.putString(SecurePreferences.hashPrefKey(key), value);
+            return this;
+        }
 
-		@Override
-		@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-		public SharedPreferences.Editor putStringSet(String key,
-				Set<String> values) {
-			final Set<String> encryptedValues = new HashSet<String>(
-					values.size());
-			for (String value : values) {
-				encryptedValues.add(encrypt(value));
-			}
-			mEditor.putStringSet(SecurePreferences.hashPrefKey(key),
-					encryptedValues);
-			return this;
-		}
+        @Override
+        @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+        public SharedPreferences.Editor putStringSet(String key,
+                                                     Set<String> values) {
+            final Set<String> encryptedValues = new HashSet<String>(
+                    values.size());
+            for (String value : values) {
+                encryptedValues.add(encrypt(value));
+            }
+            mEditor.putStringSet(SecurePreferences.hashPrefKey(key),
+                    encryptedValues);
+            return this;
+        }
 
-		@Override
-		public SharedPreferences.Editor putInt(String key, int value) {
-			mEditor.putString(SecurePreferences.hashPrefKey(key),
+        @Override
+        public SharedPreferences.Editor putInt(String key, int value) {
+            mEditor.putString(SecurePreferences.hashPrefKey(key),
                     encrypt(Integer.toString(value)));
-			return this;
-		}
+            return this;
+        }
 
-		@Override
-		public SharedPreferences.Editor putLong(String key, long value) {
-			mEditor.putString(SecurePreferences.hashPrefKey(key),
+        @Override
+        public SharedPreferences.Editor putLong(String key, long value) {
+            mEditor.putString(SecurePreferences.hashPrefKey(key),
                     encrypt(Long.toString(value)));
-			return this;
-		}
+            return this;
+        }
 
-		@Override
-		public SharedPreferences.Editor putFloat(String key, float value) {
-			mEditor.putString(SecurePreferences.hashPrefKey(key),
+        @Override
+        public SharedPreferences.Editor putFloat(String key, float value) {
+            mEditor.putString(SecurePreferences.hashPrefKey(key),
                     encrypt(Float.toString(value)));
-			return this;
-		}
+            return this;
+        }
 
-		@Override
-		public SharedPreferences.Editor putBoolean(String key, boolean value) {
-			mEditor.putString(SecurePreferences.hashPrefKey(key),
+        @Override
+        public SharedPreferences.Editor putBoolean(String key, boolean value) {
+            mEditor.putString(SecurePreferences.hashPrefKey(key),
                     encrypt(Boolean.toString(value)));
-			return this;
-		}
+            return this;
+        }
 
-		@Override
-		public SharedPreferences.Editor remove(String key) {
-			mEditor.remove(SecurePreferences.hashPrefKey(key));
-			return this;
-		}
+        @Override
+        public SharedPreferences.Editor remove(String key) {
+            mEditor.remove(SecurePreferences.hashPrefKey(key));
+            return this;
+        }
 
-		@Override
-		public SharedPreferences.Editor clear() {
-			mEditor.clear();
-			return this;
-		}
+        @Override
+        public SharedPreferences.Editor clear() {
+            mEditor.clear();
+            return this;
+        }
 
-		@Override
-		public boolean commit() {
-			return mEditor.commit();
-		}
+        @Override
+        public boolean commit() {
+            return mEditor.commit();
+        }
 
-		@Override
-		@TargetApi(Build.VERSION_CODES.GINGERBREAD)
-		public void apply() {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-				mEditor.apply();
-			} else {
-				commit();
-			}
-		}
-	}
+        @Override
+        @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+        public void apply() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+                mEditor.apply();
+            } else {
+                commit();
+            }
+        }
+    }
 
-	public static boolean isLoggingEnabled() {
-		return sLoggingEnabled;
-	}
+    public static boolean isLoggingEnabled() {
+        return sLoggingEnabled;
+    }
 
-	public static void setLoggingEnabled(boolean loggingEnabled) {
-		sLoggingEnabled = loggingEnabled;
-	}
+    public static void setLoggingEnabled(boolean loggingEnabled) {
+        sLoggingEnabled = loggingEnabled;
+    }
 
     @Override
     public void registerOnSharedPreferenceChangeListener(
@@ -660,58 +632,21 @@ public class SecurePreferences implements SharedPreferences {
     }
 
     /**
-     * @param listener OnSharedPreferenceChangeListener
+     * @param listener    OnSharedPreferenceChangeListener
      * @param decryptKeys Callbacks receive the "key" parameter decrypted
      */
     public void registerOnSharedPreferenceChangeListener(
             final OnSharedPreferenceChangeListener listener, boolean decryptKeys) {
 
-        if(!decryptKeys) {
+        if (!decryptKeys) {
             registerOnSharedPreferenceChangeListener(listener);
-            return;
         }
-
-
-        // wrap user's OnSharedPreferenceChangeListener with another that decrypts key before
-        // calling the onSharedPreferenceChanged callback
-        /*
-        OnSharedPreferenceChangeListener secureListener =
-                new OnSharedPreferenceChangeListener() {
-                    private OnSharedPreferenceChangeListener mInsecureListener = listener;
-                    @Override
-                    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-                                                          String key) {
-                        try {
-                            //this doesn't work anymore as the key isn't enc, it's hashed
-                            String decryptedKey = decrypt(key);
-                            if(decryptedKey != null) {
-                                mInsecureListener.onSharedPreferenceChanged(sharedPreferences,
-                                        decryptedKey);
-                            }
-                        } catch (Exception e) {
-                            Log.w(TAG, "Unable to decrypt key: " + key);
-                        }
-                    }
-                };
-        sOnSharedPreferenceChangeListeners.put(listener, secureListener);
-        sharedPreferences
-                .registerOnSharedPreferenceChangeListener(secureListener);
-        */
     }
 
-	@Override
-	public void unregisterOnSharedPreferenceChangeListener(
-			OnSharedPreferenceChangeListener listener) {
-        /*
-        if(sOnSharedPreferenceChangeListeners.containsKey(listener)) {
-            OnSharedPreferenceChangeListener secureListener =
-                    sOnSharedPreferenceChangeListeners.remove(listener);
-            sharedPreferences
-                    .unregisterOnSharedPreferenceChangeListener(secureListener);
-        } else {
-        */
-            sharedPreferences
-                    .unregisterOnSharedPreferenceChangeListener(listener);
-        //}
-	}
+    @Override
+    public void unregisterOnSharedPreferenceChangeListener(
+            OnSharedPreferenceChangeListener listener) {
+        sharedPreferences
+                .unregisterOnSharedPreferenceChangeListener(listener);
+    }
 }
