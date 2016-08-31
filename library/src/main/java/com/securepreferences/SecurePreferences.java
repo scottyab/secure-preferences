@@ -212,18 +212,6 @@ public class SecurePreferences implements SharedPreferences {
 
 
     /**
-     * Uses device and application values to generate the pref key for the encryption key
-     *
-     * @param context should be ApplicationContext not Activity
-     * @return String to be used as the AESkey Pref key
-     * @throws GeneralSecurityException if something goes wrong in generation
-     */
-    private String generateAesKeyName(Context context) throws GeneralSecurityException {
-        return generateAesKeyName(context, ORIGINAL_ITERATION_COUNT);
-    }
-
-
-    /**
      * Gets the hardware serial number of this device.
      *
      * @return serial number or Settings.Secure.ANDROID_ID if not available.
