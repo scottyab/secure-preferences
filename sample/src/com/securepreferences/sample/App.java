@@ -7,7 +7,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.securepreferences.SecurePreferences;
-import com.securepreferences.sample.utils.TickTock;
 import com.tozny.crypto.android.AesCbcWithIntegrity;
 
 import java.security.GeneralSecurityException;
@@ -24,21 +23,24 @@ public class App extends Application {
     protected static App instance;
     private SecurePreferences mSecurePrefs;
     private SecurePreferences mUserPrefs;
-    public App(){
+
+    public App() {
         super();
         instance = this;
     }
+
     public static App get() {
         return instance;
     }
 
     /**
      * Single point for the app to get the secure prefs object
+     *
      * @return
      */
     @DebugLog
-    public SharedPreferences getSharedPreferences() {
-        if(mSecurePrefs==null){
+    public SecurePreferences getSecurePreferences() {
+        if (mSecurePrefs == null) {
             mSecurePrefs = new SecurePreferences(this, "", "my_prefs.xml");
             SecurePreferences.setLoggingEnabled(true);
         }
@@ -48,12 +50,13 @@ public class App extends Application {
 
     /**
      * This is just an example of how you might want to create your own key with less iterations 1,000 rather than default 10,000. This makes it quicker but less secure.
+     *
      * @return
      */
     @DebugLog
     public SharedPreferences getSharedPreferences1000() {
         try {
-            AesCbcWithIntegrity.SecretKeys myKey = AesCbcWithIntegrity.generateKeyFromPassword(Build.SERIAL,AesCbcWithIntegrity.generateSalt(),1000);
+            AesCbcWithIntegrity.SecretKeys myKey = AesCbcWithIntegrity.generateKeyFromPassword(Build.SERIAL, AesCbcWithIntegrity.generateSalt(), 1000);
             return new SecurePreferences(this, myKey, "my_prefs_1000.xml");
         } catch (GeneralSecurityException e) {
             Log.e(TAG, "Failed to create custom key for SecurePreferences", e);
@@ -68,16 +71,16 @@ public class App extends Application {
 
 
     @DebugLog
-    public SecurePreferences getUserPinBasedSharedPreferences(String password){
-        if(mUserPrefs==null) {
+    public SecurePreferences getUserPinBasedSharedPreferences(String password) {
+        if (mUserPrefs == null) {
             mUserPrefs = new SecurePreferences(this, password, "user_prefs.xml");
         }
         return mUserPrefs;
     }
 
     @DebugLog
-    public boolean changeUserPrefPassword(String newPassword){
-        if(mUserPrefs!=null){
+    public boolean changeUserPrefPassword(String newPassword) {
+        if (mUserPrefs != null) {
             try {
                 mUserPrefs.handlePasswordChange(newPassword, this);
                 return true;

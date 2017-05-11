@@ -60,7 +60,7 @@ public class MainActivity extends ActionBarActivity {
 		setContentView(R.layout.activity_main);
 		initViews();
 
-        mSecurePrefs = App.get().getSharedPreferences();
+        mSecurePrefs = App.get().getSecurePreferences();
         App.get().getSharedPreferences1000();
 		updateEncValueDisplay();
         mSecurePrefs
@@ -80,7 +80,7 @@ public class MainActivity extends ActionBarActivity {
 
     private SharedPreferences getSharedPref(){
         if(mSecurePrefs==null){
-            mSecurePrefs = App.get().getSharedPreferences();
+            mSecurePrefs = App.get().getSecurePreferences();
         }
         return mSecurePrefs;
     }

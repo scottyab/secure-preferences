@@ -16,8 +16,6 @@
 
 package com.securepreferences.sample;
 
-import java.util.Map.Entry;
-
 import android.annotation.TargetApi;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -35,6 +33,8 @@ import android.view.View;
 
 import com.securepreferences.SecurePreferences;
 
+import java.util.Map.Entry;
+
 /**
  * Shows example of how to use secure prefs with PreferenceFragment. Note the code in the onStart and onStop.
  * With out this the preference fragment/activity will just save things unencrypted to default preferences.
@@ -44,7 +44,7 @@ public class SamplePreferenceFragment extends PreferenceFragment {
 
     private static final String TAG = SamplePreferenceFragment.class.getSimpleName();
     private SharedPreferences mInsecurePrefs;
-    private SharedPreferences mSecurePrefs;
+    private SecurePreferences mSecurePrefs;
 
     private CheckBoxPreference mCheckBoxPref;
     private EditTextPreference mTextPref;
@@ -56,25 +56,25 @@ public class SamplePreferenceFragment extends PreferenceFragment {
     private String listKeyHash;
 
     @Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-		addPreferencesFromResource(R.xml.preferences);
+        addPreferencesFromResource(R.xml.preferences);
 
         //DefaultSharedPreferences is used by the PreferenceActivity
         mInsecurePrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         //both use a different pref file
-        mSecurePrefs = App.get().getSharedPreferences();
-	}
+        mSecurePrefs = App.get().getSecurePreferences();
+    }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         //we need to use the hashed version of the keys to look them up (annoying i know!)
-        checkBoxKeyHash = SecurePreferences.hashPrefKey(getString(R.string.checkbox_key));
-        textKeyHash = SecurePreferences.hashPrefKey(getString(R.string.text_key));
-        listKeyHash = SecurePreferences.hashPrefKey(getString(R.string.list_key));
+        checkBoxKeyHash = mSecurePrefs.obfuscateKeyName(getString(R.string.checkbox_key));
+        textKeyHash = mSecurePrefs.obfuscateKeyName(getString(R.string.text_key));
+        listKeyHash = mSecurePrefs.obfuscateKeyName(getString(R.string.list_key));
 
         //look up the pref with it's real key name as in the xml not the hash
         mCheckBoxPref = (CheckBoxPreference) findPreference(getString(R.string.checkbox_key));
@@ -89,7 +89,7 @@ public class SamplePreferenceFragment extends PreferenceFragment {
         mTextPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                mTextPref.setSummary((String)newValue);
+                mTextPref.setSummary((String) newValue);
                 return true;
             }
         });
@@ -101,7 +101,7 @@ public class SamplePreferenceFragment extends PreferenceFragment {
         mListPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                mListPref.setSummary("Selected: " + (String)newValue);
+                mListPref.setSummary("Selected: " + (String) newValue);
                 return true;
             }
         });
@@ -124,14 +124,14 @@ public class SamplePreferenceFragment extends PreferenceFragment {
                 mTextPref.setText(mSecurePrefs.getString(getString(R.string.text_key), null));
             } else if (key.equals(listKeyHash)) {
                 String value = mSecurePrefs.getString(getString(R.string.list_key), null);
-                if(!TextUtils.isEmpty(value)){
+                if (!TextUtils.isEmpty(value)) {
                     final int valueInt = Integer.parseInt(value);
-                    if(valueInt!=0) {
+                    if (valueInt != 0) {
                         mListPref.setValueIndex(valueInt - 1); // Zero based index = selection
                         // value - 1
                     }
                 }
-            }else{
+            } else {
                 Log.d(TAG, "No match found for " + key);
             }
         }
