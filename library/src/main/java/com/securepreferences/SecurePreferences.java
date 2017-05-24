@@ -335,7 +335,13 @@ public class SecurePreferences implements SharedPreferences {
     public String getString(String key, String defaultValue) {
         final String encryptedValue = sharedPreferences.getString(
                 SecurePreferences.hashPrefKey(key), null);
-        return (encryptedValue != null) ? decrypt(encryptedValue) : defaultValue;
+
+        String decryptedValue = decrypt(encryptedValue);
+        if (encryptedValue != null && decryptedValue != null) {
+            return decryptedValue;
+        } else {
+            return defaultValue;
+        }
     }
 
     /**
