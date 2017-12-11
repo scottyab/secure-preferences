@@ -18,14 +18,14 @@ buildscript {
 }
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion '21.1.2'
+    compileSdkVersion 27
+    buildToolsVersion '26.0.3'
 
     defaultConfig {
-        minSdkVersion 10
-        targetSdkVersion 22
-        versionCode 6
-        versionName "1.0.3"
+        minSdkVersion 14
+        targetSdkVersion 27
+        versionCode 7
+        versionName "1.0.4"
     }
 
     sourceSets {
