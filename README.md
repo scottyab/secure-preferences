@@ -22,7 +22,7 @@ The **v0.1.0** release was a major refactor of the guts of secure prefs, which i
 
 Maven central is the preferred way:
 
-Note: v0.1.0 was dependent on snapshot of aes-crypto, this is only as I was waiting for the aes-crypto repo owner to upload to maven. I've sorted this for v0.1.1+ which is no longer dependant on Snapshot repo.
+Note: v0.1.0 was dependent on snapshot of aes-crypto, this is only as I was waiting for the aes-crypto repo owner to upload to maven. I've sorted this for v0.1.1+ which is no longer dependent on Snapshot repo.
 
 ```java
 dependencies {
