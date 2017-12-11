@@ -9,14 +9,14 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class HashBasedPrefKeyObsfucator implements PrefKeyObsfucator {
+public class HashBasedPrefKeyObfuscator implements PrefKeyObfuscator {
 
     private static final String TAG = "hashprefkeyObs";
 
     private MessageDigest digest;
     private static final String HASH_ALG = "SHA-256";
 
-    public HashBasedPrefKeyObsfucator() {
+    public HashBasedPrefKeyObfuscator() {
         try {
             digest = MessageDigest.getInstance(HASH_ALG);
         } catch (NoSuchAlgorithmException e) {
@@ -25,7 +25,7 @@ public class HashBasedPrefKeyObsfucator implements PrefKeyObsfucator {
     }
 
     @Override
-    public String obsfucate(String keyname) {
+    public String obfuscate(String keyname) {
         try {
             byte[] bytes = keyname.getBytes("UTF-8");
             digest.reset();

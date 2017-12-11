@@ -2,25 +2,32 @@ package com.securepreferences;
 
 import java.security.GeneralSecurityException;
 
-public interface PrefValueEncrypter<T> {
-
-    T getKey();
+/**
+ * handles the key generation, encrypt, decrypt operations
+ */
+public interface PrefValueEncrypter {
 
     /**
      * @param plainText
      * @return base64 encoded string
-     * @throws GeneralSecurityException
+     * @throws GeneralSecurityException if something in the encrypt fails
      */
     String encrypt(String plainText) throws GeneralSecurityException;
 
     /**
-     * base64 encoded base64
-     *
-     * @param base64EncodedCipherText
-     * @return
-     * @throws GeneralSecurityException
+     * @param base64EncodedCipherText - Encoded CipherText
+     * @return plain text
+     * @throws GeneralSecurityException if something in the decrypt fails
      */
     String decrypt(String base64EncodedCipherText) throws GeneralSecurityException;
 
+    /**
+     * wipes key from memory
+     */
     void clearKeys();
+
+    /**
+     * generates a new key
+     */
+    void reset();
 }

@@ -10,9 +10,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import io.reactivex.annotations.Nullable;
-
-public class Aes128PrefValueEncrypter implements PrefValueEncrypter<SecretKeySpec> {
+public class Aes128PrefValueEncrypter implements PrefValueEncrypter {
 
     private static final int AES_KEY_LENGTH_BITS = 128;
     private static final String ALGORTHRM = "AES";
@@ -22,13 +20,32 @@ public class Aes128PrefValueEncrypter implements PrefValueEncrypter<SecretKeySpe
 
     private final SecureRandom mSecureRandom;
     private final Encoder mEncoder;
+
+    private final SecretKeyDatasource secretKeyDatasource;
     private SecretKeySpec mKey;
 
-
-    Aes128PrefValueEncrypter(Encoder encoder) {
+    Aes128PrefValueEncrypter(Encoder encoder, SecretKeyDatasource secretKeyDatasource) {
+        this.secretKeyDatasource = secretKeyDatasource;
         mSecureRandom = new SecureRandom();
         mEncoder = encoder;
+        init();
+    }
 
+    @Override
+    public void reset() {
+        secretKeyDatasource.destroyKey();
+        clearKeys();
+        init();
+    }
+
+    private void init() {
+        if (secretKeyDatasource.checkKeyIsPresent()) {
+            byte[] keyBytes = secretKeyDatasource.getKey();
+            mKey = new SecretKeySpec(keyBytes, ALGORTHRM);
+        } else {
+            mKey = generateKey();
+            secretKeyDatasource.saveKey(mKey.getEncoded());
+        }
     }
 
     private SecretKeySpec generateKey() {
@@ -44,10 +61,6 @@ public class Aes128PrefValueEncrypter implements PrefValueEncrypter<SecretKeySpe
         }
     }
 
-    @Override
-    public SecretKeySpec getKey() {
-        return null;
-    }
 
     /**
      * Use a securely random IV per value encrypted
@@ -126,4 +139,6 @@ public class Aes128PrefValueEncrypter implements PrefValueEncrypter<SecretKeySpe
     public void clearKeys() {
         mKey = null;
     }
+
+
 }

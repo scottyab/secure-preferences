@@ -1,13 +1,16 @@
 apply plugin: 'com.android.library'
 
-/*
 repositories {
-    mavenCentral()
-    flatDir {
-        dirs 'libs' //this way we can find the .aar file in libs folder
-    }
+    google()
 }
-*/
+
+ext {
+    versions = [
+            hamcrest: '1.3',
+            mockito : '2.10.0',
+            junit   : '4.12'
+    ]
+}
 
 android {
     compileSdkVersion 27
@@ -26,8 +29,23 @@ android {
     dependencies {
         compile 'com.scottyab:aes-crypto:0.0.4'
 
+        compile 'com.android.support:support-annotations:27.0.2'
+
         //used when referencing a local copy of aes-crypto
         //compile project(':aes-crypto-release')
+
+        // Dependencies for local unit tests
+        testImplementation "junit:junit:$versions.junit"
+        testImplementation "org.mockito:mockito-android:$versions.mockito"
+        testImplementation "org.hamcrest:hamcrest-all:$versions.hamcrest"
+
+        // Dependencies for Android unit tests
+        androidTestImplementation "junit:junit:$versions.junit"
+        androidTestImplementation "org.mockito:mockito-core:$versions.mockito"
+
+        androidTestImplementation 'com.google.dexmaker:dexmaker:1.2'
+        androidTestImplementation 'com.google.dexmaker:dexmaker-mockito:1.2'
+
     }
 
 

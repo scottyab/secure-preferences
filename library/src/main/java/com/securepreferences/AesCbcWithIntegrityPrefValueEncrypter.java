@@ -8,16 +8,21 @@ import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 
-public class AesCbcWithIntegrityPrefValueEncrypter implements PrefValueEncrypter<AesCbcWithIntegrity.SecretKeys> {
+// TODO: 11/12/2017 add to seperate module so AesCbcWithIntegrity is optional extra??
+public class AesCbcWithIntegrityPrefValueEncrypter implements PrefValueEncrypter {
 
     private static final String TAG = "AesPrefEncrypter";
 
     private AesCbcWithIntegrity.SecretKeys keys;
+    private final Encoder encoder;
+    private final SecretKeyDatasource secretKeyDatasource;
 
     private boolean sLoggingEnabled = true;
 
     private AesCbcWithIntegrityPrefValueEncrypter(Builder builder) {
         keys = builder.keys;
+        this.encoder = builder.encoder;
+        this.secretKeyDatasource = builder.secretKeyDatasource;
     }
 
     public static Builder newBuilder() {
@@ -25,8 +30,15 @@ public class AesCbcWithIntegrityPrefValueEncrypter implements PrefValueEncrypter
     }
 
     @Override
-    public AesCbcWithIntegrity.SecretKeys getKey() {
-        return keys;
+    public void reset() {
+
+    }
+
+    public void changePassword(String oldPassword, String newPassword) {
+        // TODO: 11/12/2017 EncryptedValueMigrator?? ?
+
+        //handle data migration and then update keys and secretKeyDatasource.saveKey
+
     }
 
 
@@ -72,12 +84,24 @@ public class AesCbcWithIntegrityPrefValueEncrypter implements PrefValueEncrypter
 
     public static final class Builder {
         private AesCbcWithIntegrity.SecretKeys keys;
+        private Encoder encoder;
+        private SecretKeyDatasource secretKeyDatasource;
 
         private Builder() {
         }
 
-        public Builder withKey(AesCbcWithIntegrity.SecretKeys val) {
-            keys = val;
+        public Builder withEncoder(Encoder encoder) {
+            this.encoder = encoder;
+            return this;
+        }
+
+        public Builder witKeyDataSource(SecretKeyDatasource secretKeyDatasource) {
+            this.secretKeyDatasource = secretKeyDatasource;
+            return this;
+        }
+
+        public Builder withKey(AesCbcWithIntegrity.SecretKeys keys) {
+            this.keys = keys;
             return this;
         }
 
@@ -89,10 +113,10 @@ public class AesCbcWithIntegrityPrefValueEncrypter implements PrefValueEncrypter
         public Builder withStringEncodedKey(String keyAsString) throws GeneralSecurityException {
             try {
                 keys = AesCbcWithIntegrity.keys(keyAsString);
+                return this;
             } catch (InvalidKeyException e) {
                 throw new GeneralSecurityException(e);
             }
-            return this;
         }
 
         public AesCbcWithIntegrityPrefValueEncrypter build() throws GeneralSecurityException {
@@ -106,4 +130,6 @@ public class AesCbcWithIntegrityPrefValueEncrypter implements PrefValueEncrypter
             return AesCbcWithIntegrity.generateKey();
         }
     }
+
+
 }

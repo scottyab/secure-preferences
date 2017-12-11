@@ -25,16 +25,20 @@ public class Utils {
             String deviceSerial = (String) Build.class.getField("SERIAL").get(
                     null);
             if (TextUtils.isEmpty(deviceSerial)) {
-                return Settings.Secure.getString(
-                        context.getContentResolver(),
-                        Settings.Secure.ANDROID_ID);
+                return deviceId(context);
             } else {
                 return deviceSerial;
             }
         } catch (Exception ignored) {
             // Fall back  to Android_ID
-            return Settings.Secure.getString(context.getContentResolver(),
-                    Settings.Secure.ANDROID_ID);
+            return deviceId(context);
         }
+    }
+
+
+    @SuppressLint("HardwareIds")
+    static String deviceId(Context context) {
+        return Settings.Secure.getString(context.getContentResolver(),
+                Settings.Secure.ANDROID_ID);
     }
 }

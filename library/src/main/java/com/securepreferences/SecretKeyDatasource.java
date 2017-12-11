@@ -1,11 +1,16 @@
 package com.securepreferences;
 
-public interface SecretKeyDatasource<T> {
+/**
+ * handles storing and retrieving the key
+ */
+public interface SecretKeyDatasource {
 
-    T getKey();
+    byte[] getKey();
 
     boolean checkKeyIsPresent();
 
-    void saveKey(T secretkey);
+    void saveKey(byte[] secretkey);
+
+    void destroyKey();
 
 }
