@@ -449,6 +449,7 @@ public class SecurePreferences implements SharedPreferences {
         /**
          * Constructor.
          */
+        @SuppressLint("CommitPrefEdits")
         private Editor() {
             mEditor = sharedPreferences.edit();
         }
@@ -510,7 +511,7 @@ public class SecurePreferences implements SharedPreferences {
         }
 
         @Override
-        public SharedPreferences.Editor putBoolean(String key, boolean value) {
+        public SharedPrefe rences.Editor putBoolean(String key, boolean value) {
             mEditor.putString(obfuscateKeyName(key),
                     encryptAndSuppress(Boolean.toString(value)));
             return this;
