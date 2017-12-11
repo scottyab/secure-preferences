@@ -28,6 +28,11 @@ android {
 
         //used when referencing a local copy of aes-crypto
         //compile project(':aes-crypto-release')
+
+        testCompile "junit:junit:4.12"
+        testCompile "org.mockito:mockito-core:2.12.0"
+
+
     }
 
 

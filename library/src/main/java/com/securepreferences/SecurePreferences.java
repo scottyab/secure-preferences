@@ -511,7 +511,7 @@ public class SecurePreferences implements SharedPreferences {
         }
 
         @Override
-        public SharedPrefe rences.Editor putBoolean(String key, boolean value) {
+        public SharedPreferences.Editor putBoolean(String key, boolean value) {
             mEditor.putString(obfuscateKeyName(key),
                     encryptAndSuppress(Boolean.toString(value)));
             return this;

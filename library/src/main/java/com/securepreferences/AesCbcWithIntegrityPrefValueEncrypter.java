@@ -16,7 +16,6 @@ public class AesCbcWithIntegrityPrefValueEncrypter implements PrefValueEncrypter
 
     private boolean sLoggingEnabled = true;
 
-
     private AesCbcWithIntegrityPrefValueEncrypter(Builder builder) {
         keys = builder.keys;
     }
