@@ -3,6 +3,7 @@ package com.securepreferences;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Map;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -10,7 +11,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-public class Aes128PrefValueEncrypter implements PrefValueEncrypter {
+public class Aes128PrefValueEncrypter implements PrefValueEncrypter{
 
     private static final int AES_KEY_LENGTH_BITS = 128;
     private static final String ALGORTHRM = "AES";
@@ -139,6 +140,5 @@ public class Aes128PrefValueEncrypter implements PrefValueEncrypter {
     public void clearKeys() {
         mKey = null;
     }
-
 
 }

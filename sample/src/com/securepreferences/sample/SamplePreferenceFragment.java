@@ -31,8 +31,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 
-import com.securepreferences.SecurePreferences;
-
 import java.util.Map.Entry;
 
 /**

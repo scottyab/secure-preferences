@@ -25,7 +25,7 @@ public class AesCbcWithIntegrityPrefValueEncrypter implements PrefValueEncrypter
         this.secretKeyDatasource = builder.secretKeyDatasource;
     }
 
-    public static Builder newBuilder() {
+    public static Builder builder() {
         return new Builder();
     }
 
@@ -33,14 +33,6 @@ public class AesCbcWithIntegrityPrefValueEncrypter implements PrefValueEncrypter
     public void reset() {
 
     }
-
-    public void changePassword(String oldPassword, String newPassword) {
-        // TODO: 11/12/2017 EncryptedValueMigrator?? ?
-
-        //handle data migration and then update keys and secretKeyDatasource.saveKey
-
-    }
-
 
     @Override
     public String encrypt(String cleartext) throws GeneralSecurityException {
@@ -84,7 +76,7 @@ public class AesCbcWithIntegrityPrefValueEncrypter implements PrefValueEncrypter
 
     public static final class Builder {
         private AesCbcWithIntegrity.SecretKeys keys;
-        private Encoder encoder;
+        private Encoder encoder = new Encoder();
         private SecretKeyDatasource secretKeyDatasource;
 
         private Builder() {

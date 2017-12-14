@@ -1,25 +1,26 @@
 package com.securepreferences;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotSame;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import javax.crypto.spec.SecretKeySpec;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotSame;
 
 public class Aes128PrefValueEncrypterTest {
 
     private Aes128PrefValueEncrypter mSut;
 
     @Mock
-    SecretKeySpec mSecretKeySpecMock;
+    Encoder mockEncoder;
+
+    @Mock
+    SecretKeyDatasource mockSecretKeyDatasource;
 
 
     @Before
     public void setup() {
-        mSut = new AesValueEncrypter(mSecretKeySpecMock);
+        mSut = new Aes128PrefValueEncrypter(mockEncoder, mockSecretKeyDatasource);
     }
 
     @Test

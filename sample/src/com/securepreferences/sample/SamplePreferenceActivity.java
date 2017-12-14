@@ -28,8 +28,6 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.securepreferences.SecurePreferences;
-
 import java.util.Map.Entry;
 
 /**

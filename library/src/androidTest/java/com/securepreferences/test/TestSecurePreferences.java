@@ -46,7 +46,6 @@ public class TestSecurePreferences extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        SecurePreferences.setLoggingEnabled(true);
     }
 
 

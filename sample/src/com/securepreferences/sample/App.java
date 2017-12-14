@@ -18,7 +18,6 @@ import hugo.weaving.DebugLog;
  */
 public class App extends Application {
 
-
     private static final String TAG = "secureprefsample";
     protected static App instance;
     private SecurePreferences mSecurePrefs;
@@ -42,7 +41,6 @@ public class App extends Application {
     public SecurePreferences getSecurePreferences() {
         if (mSecurePrefs == null) {
             mSecurePrefs = new SecurePreferences(this, "", "my_prefs.xml");
-            SecurePreferences.setLoggingEnabled(true);
         }
         return mSecurePrefs;
     }
