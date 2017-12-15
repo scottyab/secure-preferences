@@ -19,6 +19,11 @@ public class SecurePreferenceCreator {
     public static int ITERATION_COUNT_MEDIUM = 500;
     public static int ITERATION_COUNT_STRONGER_SLOWER = 10_000;
 
+
+    private SecurePreferenceCreator() {
+        //not meant to be constructed
+    }
+
     /**
      * Wraps the sharedPreferences in SecurePreferences with default AES 128 encrypter and hash based key Obfuscator
      */

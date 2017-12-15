@@ -24,13 +24,16 @@ import java.util.Set;
  * Recommended to use with complex user password, in which case the encryption key used will be derived
  * from the password (then kept in memory) and not stored in the file.
  * <p>
- * SecurePreferences implements SecretKeyDatasource to optionally allow the encoded
+ * `SecurePreferences implements SecretKeyDatasource` to optionally allow the encoded
  * encryption key and encoded encrypted values to be stored in the same file. Storing in separate file
  * would just highlight where and which value is the key. This isn't used/needed is using Password based encryption
  * <p>
- * OnSharedPreferenceChangeListener are not supported
+ * OnSharedPreferenceChangeListener is not supported instead use `registerOnSecurePreferenceChangeListener`
  */
 public class SecurePreferences implements SharedPreferences, SecretKeyDatasource, EncryptedValueMigrator {
+
+    private final Set<OnSecurePreferencesChangeListener> securePreferenceChangeListeners;
+    private final DecryptingPreferenceChangeListener decryptingPreferenceChangeListener;
 
     private final SharedPreferences sharedPreferences;
     private final PrefKeyObfuscator keyNameObfuscator;
@@ -55,6 +58,8 @@ public class SecurePreferences implements SharedPreferences, SecretKeyDatasource
         this.keyNameObfuscator = keyNameObfuscator;
         this.prefValueEncrypter = prefValueEncrypter;
         encoder = new Encoder();
+        securePreferenceChangeListeners = new HashSet<>();
+        decryptingPreferenceChangeListener = new DecryptingPreferenceChangeListener();
     }
 
 
@@ -72,29 +77,34 @@ public class SecurePreferences implements SharedPreferences, SecretKeyDatasource
 
     @Override
     public byte[] getKey() {
-        String obfuscatedKey = keyNameObfuscator.obfuscate(KEY_NAME);
+        String obfuscatedKey = obfuscatedKeyName(KEY_NAME);
         String key = sharedPreferences.getString(obfuscatedKey, null);
         return encoder.decode(key);
     }
 
     @Override
     public void saveKey(byte[] key) {
-        String obfuscatedKey = keyNameObfuscator.obfuscate(KEY_NAME);
+        String obfuscatedKey = obfuscatedKeyName(KEY_NAME);
         String base64Key = encoder.encode(key);
         getEditorNotEncrypted().putString(obfuscatedKey, base64Key).commit();
     }
 
     @Override
     public boolean checkKeyIsPresent() {
-        String obfuscatedKey = keyNameObfuscator.obfuscate(KEY_NAME);
+        String obfuscatedKey = obfuscatedKeyName(KEY_NAME);
         return sharedPreferences.contains(obfuscatedKey);
     }
 
     @SuppressLint("ApplySharedPref")
     @Override
     public void destroyKey() {
-        String obfuscatedKey = keyNameObfuscator.obfuscate(KEY_NAME);
+        String obfuscatedKey = obfuscatedKeyName(KEY_NAME);
         sharedPreferences.edit().remove(obfuscatedKey).commit();
+    }
+
+
+    public String obfuscatedKeyName(String keyName) {
+        return keyNameObfuscator.obfuscate(keyName);
     }
 
 
@@ -185,7 +195,7 @@ public class SecurePreferences implements SharedPreferences, SecretKeyDatasource
 
     @Override
     public boolean contains(String key) {
-        String obfuscatedKey = keyNameObfuscator.obfuscate(key);
+        String obfuscatedKey = obfuscatedKeyName(key);
         return sharedPreferences.contains(obfuscatedKey);
     }
 
@@ -201,12 +211,15 @@ public class SecurePreferences implements SharedPreferences, SecretKeyDatasource
 
     private Set<String> getAllKeysExcludingEncryptionKey() {
         final Set<String> keyNames = sharedPreferences.getAll().keySet();
-        keyNames.remove(keyNameObfuscator.obfuscate(KEY_NAME));
+        keyNames.remove(obfuscatedKeyName(KEY_NAME));
         return keyNames;
     }
 
+    /**
+     * @return Map all the prefs decrypted, however keys are still using the prefKeyObfuscator
+     */
     @Override
-    public Map<String, ?> getAll() {
+    public Map<String, String> getAll() {
         final Map<String, ?> encryptedMap = sharedPreferences.getAll();
 
         final Map<String, String> decryptedMap = new HashMap<>(encryptedMap.size());
@@ -215,7 +228,7 @@ public class SecurePreferences implements SharedPreferences, SecretKeyDatasource
             try {
 
                 //don't include the key
-                if (keyNameObfuscator.obfuscate(KEY_NAME).equals(entry.getKey())) {
+                if (obfuscatedKeyName(KEY_NAME).equals(entry.getKey())) {
                     continue;
                 }
 
@@ -234,7 +247,7 @@ public class SecurePreferences implements SharedPreferences, SecretKeyDatasource
     @Nullable
     @Override
     public Set<String> getStringSet(String key, @Nullable Set<String> defaultValues) {
-        final Set<String> encryptedSet = sharedPreferences.getStringSet(keyNameObfuscator.obfuscate(key), null);
+        final Set<String> encryptedSet = sharedPreferences.getStringSet(obfuscatedKeyName(key), null);
         if (encryptedSet == null) {
             return defaultValues;
         }
@@ -269,7 +282,7 @@ public class SecurePreferences implements SharedPreferences, SecretKeyDatasource
         private Editor encryptStringValue(String key, String value) {
             checkInitialised();
 
-            String obfuscatedKey = keyNameObfuscator.obfuscate(key);
+            String obfuscatedKey = obfuscatedKeyName(key);
             try {
                 String cipherText = prefValueEncrypter.encrypt(value);
                 return mEditor.putString(obfuscatedKey, cipherText);
@@ -280,16 +293,21 @@ public class SecurePreferences implements SharedPreferences, SecretKeyDatasource
 
         @Override
         public Editor putStringSet(String key, @Nullable Set<String> values) {
-            final Set<String> encryptedValues = new HashSet<>(values.size());
-            try {
-                for (String value : values) {
-                    encryptedValues.add(prefValueEncrypter.encrypt(value));
-                }
-                mEditor.putStringSet(keyNameObfuscator.obfuscate(key),
-                        encryptedValues);
+            if (values == null) {
+                mEditor.remove(obfuscatedKeyName(key));
                 return this;
-            } catch (GeneralSecurityException e) {
-                throw new SecurityException(e);
+            } else {
+                final Set<String> encryptedValues = new HashSet<>();
+                try {
+                    for (String value : values) {
+                        encryptedValues.add(prefValueEncrypter.encrypt(value));
+                    }
+                    mEditor.putStringSet(keyNameObfuscator.obfuscate(key),
+                            encryptedValues);
+                    return this;
+                } catch (GeneralSecurityException e) {
+                    throw new SecurityException(e);
+                }
             }
         }
 
@@ -315,7 +333,7 @@ public class SecurePreferences implements SharedPreferences, SecretKeyDatasource
 
         @Override
         public Editor remove(String key) {
-            String obfuscatedKey = keyNameObfuscator.obfuscate(key);
+            String obfuscatedKey = obfuscatedKeyName(key);
             return mEditor.remove(obfuscatedKey);
         }
 
@@ -375,21 +393,65 @@ public class SecurePreferences implements SharedPreferences, SecretKeyDatasource
         }
     }
 
-    /**
-     * Not supported
-     */
+
+    public void registerOnSecurePreferenceChangeListener(OnSecurePreferencesChangeListener onSecurePreferencesChangeListener) {
+        if (securePreferenceChangeListeners.isEmpty()) {
+            sharedPreferences.registerOnSharedPreferenceChangeListener(decryptingPreferenceChangeListener);
+        }
+        securePreferenceChangeListeners.add(onSecurePreferencesChangeListener);
+    }
+
+    public void unregisterOnSecurePreferenceChangeListener(
+            OnSecurePreferencesChangeListener onSecurePreferencesChangeListener) {
+        securePreferenceChangeListeners.remove(onSecurePreferencesChangeListener);
+        if (securePreferenceChangeListeners.isEmpty()) {
+            sharedPreferences.unregisterOnSharedPreferenceChangeListener(decryptingPreferenceChangeListener);
+        }
+    }
+
+
     @Override
     public void registerOnSharedPreferenceChangeListener(
             OnSharedPreferenceChangeListener onSharedPreferenceChangeListener) {
-        throw new UnsupportedOperationException("Not supported for SecurePreferences");
+        throw new UnsupportedOperationException("Not supported, use registerOnSecurePreferenceChangeListener");
     }
 
-    /**
-     * Not supported
-     */
     @Override
     public void unregisterOnSharedPreferenceChangeListener(
             OnSharedPreferenceChangeListener onSharedPreferenceChangeListener) {
-        throw new UnsupportedOperationException("Not supported for SecurePreferences");
+        throw new UnsupportedOperationException("Not supported, use unregisterOnSecurePreferenceChangeListener");
     }
+
+    class DecryptingPreferenceChangeListener implements OnSharedPreferenceChangeListener {
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            String oldDecryptedValue = decryptOldValue(sharedPreferences, key);
+            String currentDecryptedValue = getString(key, null);
+
+            for (OnSecurePreferencesChangeListener listener : securePreferenceChangeListeners) {
+                listener.onSecurePreferencesChanged(key, oldDecryptedValue, currentDecryptedValue);
+            }
+        }
+
+        private String decryptOldValue(SharedPreferences sharedPreferences, String key) {
+            String value = sharedPreferences.getString(obfuscatedKeyName(key), null);
+            String oldDecryptedValue = null;
+            if (value != null) {
+                checkInitialised();
+                try {
+                    oldDecryptedValue = prefValueEncrypter.decrypt(value);
+                } catch (GeneralSecurityException e) {
+                    throw new SecurityException(e);
+                }
+            }
+            return oldDecryptedValue;
+        }
+
+    }
+
+
+    public interface OnSecurePreferencesChangeListener {
+        void onSecurePreferencesChanged(String key, @Nullable String oldValue, @Nullable String newValue);
+    }
+
 }

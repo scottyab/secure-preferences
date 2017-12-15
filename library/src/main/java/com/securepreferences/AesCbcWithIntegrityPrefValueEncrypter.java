@@ -8,7 +8,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 
-// TODO: 11/12/2017 add to seperate module so AesCbcWithIntegrity is optional extra??
 public class AesCbcWithIntegrityPrefValueEncrypter implements PrefValueEncrypter {
 
     private static final String TAG = "AesPrefEncrypter";
