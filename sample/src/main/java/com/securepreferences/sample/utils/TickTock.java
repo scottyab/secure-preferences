@@ -1,4 +1,4 @@
-package com.securepreferences.sample.utils;
+package main.java.sample.utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

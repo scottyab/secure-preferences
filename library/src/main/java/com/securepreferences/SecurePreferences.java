@@ -44,6 +44,10 @@ public class SecurePreferences implements SharedPreferences, SecretKeyDatasource
     //this key name of Encryption is obfuscated with the `PrefKeyObfuscator` if stored
     private final String KEY_NAME = "SECRET_KEY_NAME";
 
+    public interface OnSecurePreferencesChangeListener {
+        void onSecurePreferencesChanged(String key, @Nullable String oldValue, @Nullable String newValue);
+    }
+
     /**
      * @param sharedPreferences
      * @param keyNameObfuscator  used to Obfuscate the key name that's stored in the prefs file
@@ -53,6 +57,9 @@ public class SecurePreferences implements SharedPreferences, SecretKeyDatasource
             SharedPreferences sharedPreferences,
             PrefKeyObfuscator keyNameObfuscator,
             @Nullable PrefValueEncrypter prefValueEncrypter) {
+
+        // TODO: 19/12/2017 allow pass keyname for backwards compatibility
+        // TODO: 19/12/2017 add builder pattern (add encoder)
 
         this.sharedPreferences = sharedPreferences;
         this.keyNameObfuscator = keyNameObfuscator;
@@ -410,19 +417,27 @@ public class SecurePreferences implements SharedPreferences, SecretKeyDatasource
     }
 
 
+    /**
+     * Throws UnsupportedOperationException, use registerOnSecurePreferenceChangeListener instead
+     */
+    @Deprecated
     @Override
     public void registerOnSharedPreferenceChangeListener(
             OnSharedPreferenceChangeListener onSharedPreferenceChangeListener) {
         throw new UnsupportedOperationException("Not supported, use registerOnSecurePreferenceChangeListener");
     }
 
+    /**
+     * Throws UnsupportedOperationException, use unregisterOnSecurePreferenceChangeListener instead
+     */
+    @Deprecated
     @Override
     public void unregisterOnSharedPreferenceChangeListener(
             OnSharedPreferenceChangeListener onSharedPreferenceChangeListener) {
         throw new UnsupportedOperationException("Not supported, use unregisterOnSecurePreferenceChangeListener");
     }
 
-    class DecryptingPreferenceChangeListener implements OnSharedPreferenceChangeListener {
+    private class DecryptingPreferenceChangeListener implements OnSharedPreferenceChangeListener {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
             String oldDecryptedValue = decryptOldValue(sharedPreferences, key);
@@ -447,11 +462,6 @@ public class SecurePreferences implements SharedPreferences, SecretKeyDatasource
             return oldDecryptedValue;
         }
 
-    }
-
-
-    public interface OnSecurePreferencesChangeListener {
-        void onSecurePreferencesChanged(String key, @Nullable String oldValue, @Nullable String newValue);
     }
 
 }

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Secure Preferences Demo</string>
+    <string name="welcome">This demonstrates saving, retrieving and removing a String preference with key \`Foo\`. Please do look under the hood to see the \`my_secure_prefs.xml\` that is created using Android Studio Tools -> Android Device Monitor -> File Explorer or Facebook's Stetho</string>
+
+    <string name="foo_value_label">Dump of keys and decrypted values:</string>
+    <string name="get_button">Print Foo</string>
+    <string name="set_button">Add Foo</string>
+    <string name="remove_button">Remove Foo</string>
+    <string name="clear_all_prefs_button">Clear secure prefs</string>
+    <string name="action_github">Get it on Github</string>
+    <string name="action_create_user_prefs">Create password based user prefs</string>
+    <string name="action_change_password_user_prefs">Change password of user prefs</string>
+    <string name="info_dialog_github_button">Github</string>
+    <string name="info_dialog_details">Android Shared preference wrapper than encrypts the values of Shared Preferences. It\'s not bullet proof security but rather a quick win for incrementally making your android app more secure.</string>
+
+    <!-- Error View -->
+    <string name="error_title">Oops</string>
+    <string name="error_message">There was a problem loading the data, please try again!</string>
+    <string name="error_reload">Reload</string>
+
+    <string name="error_something_bad_happened">Something bad happened. Please try again.</string>
+    <string name="msg_loading">Loading…</string>
+    <string name="change_pwd_dialog_title">Change password</string>
+    <string name="change_pwd_dialog_msg">Assumes you\'ve already created/loaded a user password based pref file.</string>
+    <string name="change_pwd_dialog_new_password_hint">Enter new password</string>
+    <string name="change_pwd_dialog_pos">Change</string>
+    <string name="set_pwd_dialog_title">Load User prefs file</string>
+    <string name="set_pwd_dialog_msg">Load or create a user password based pref file, based on password entered here.</string>
+    <string name="set_pwd_dialog_password_hint">Enter password</string>
+    <string name="password_validation_error">Please enter a password</string>
+    <string name="password_based_prefs_explanation">You can also prompt the user for a password/passcode that\'s used to derive the encryption key used in the secure preferences. \nThis example requires the *Phone State Permission.*</string>
+
+</resources>

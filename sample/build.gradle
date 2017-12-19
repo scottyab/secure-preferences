@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.jakewharton.hugo'
 
 repositories {
+    google()
     maven {
         url "https://oss.sonatype.org/content/repositories/snapshots"
     }
@@ -9,7 +10,8 @@ repositories {
 
 buildscript {
     repositories {
-        mavenCentral()
+        google()
+        jcenter()
     }
 
     dependencies {
@@ -18,32 +20,26 @@ buildscript {
 }
 
 android {
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "SecurePreferencesSample-${variant.name}-${variant.versionName}.apk"
+        }
+    }
+
     compileSdkVersion 27
     buildToolsVersion '26.0.3'
 
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 27
-        versionCode 7
-        versionName "1.0.4"
-    }
-
-    sourceSets {
-        main {
-            assets.srcDirs = ['assets']
-            res.srcDirs = ['res']
-            aidl.srcDirs = ['src']
-            resources.srcDirs = ['src']
-            renderscript.srcDirs = ['src']
-            java.srcDirs = ['src']
-            manifest.srcFile 'AndroidManifest.xml'
-        }
+        versionCode 8
+        versionName "1.0.8"
     }
 
     //check if the keystore details are defined in gradle.properties (this is so the key is not in github)
     if(project.hasProperty("SECURE_PREF_SAMPLE_STORE")) {
         signingConfigs {
-            //from gradle.properties
+            //from local gradle.properties
             release {
                 storeFile file(SECURE_PREF_SAMPLE_STORE)
                 keyAlias SECURE_PREF_SAMPLE_KEY
@@ -53,6 +49,10 @@ android {
         }
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
 
     buildTypes {
@@ -74,8 +74,13 @@ android {
 
 
     dependencies {
-        compile 'com.android.support:appcompat-v7:22.2.0'
-        compile fileTree(dir: 'libs', include: '*.jar')
+        implementation 'com.android.support:appcompat-v7:27.0.2'
+        implementation "com.android.support:design:27.0.2"
+
+        implementation 'com.facebook.stetho:stetho:1.5.0'
+
+        implementation "com.jakewharton:butterknife:8.8.1"
+        annotationProcessor "com.jakewharton:butterknife-compiler:8.8.1"
 
         //compile 'com.scottyab:secure-preferences-lib:0.1.1'
         //snapshot
@@ -83,9 +88,6 @@ android {
 
         //used when using local aes-crypto
         //compile project(':aes-crypto-release')
-        compile project(':library')
-
-
-
+        implementation project(':library')
     }
 }

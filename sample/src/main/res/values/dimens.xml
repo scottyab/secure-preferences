@@ -6,4 +6,7 @@
     <dimen name="min_button_height">42dp</dimen>
     <dimen name="button_vertical_margin">10dp</dimen>
 
+    <dimen name="text_headline">24sp</dimen>
+    <dimen name="text_body">16sp</dimen>
+
 </resources>
