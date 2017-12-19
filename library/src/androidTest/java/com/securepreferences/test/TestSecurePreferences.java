@@ -1,14 +1,14 @@
 package com.securepreferences.test;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
+import com.securepreferences.AesCbcWithIntegrityPrefValueEncrypter;
+import com.securepreferences.SecurePreferenceCreator;
 import com.securepreferences.SecurePreferences;
 import com.tozny.crypto.android.AesCbcWithIntegrity;
 
@@ -22,16 +22,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+//todo needs refactoring to use Testing Support library
 public class TestSecurePreferences extends AndroidTestCase {
 
-    final static String DEFAULT_KEY = "testingkeyfoo";
-    final static String DEFAULT_VALUE = "testingvaluebar";
+    private final static String DEFAULT_KEY = "testingkeyfoo";
+    private final static String DEFAULT_VALUE = "testingvaluebar";
 
-    public static final String TAG = "TestSecurePreferences";
+    private static final String TAG = "TestSecurePreferences";
 
-    public static final String DEFAULT_PREFS_FILE_NAME = "com.securepreferences.test_preferences";
-    public static final String MY_CUSTOM_PREFS = "my_custom_prefs";
-    public static final String USER_PREFS_WITH_PASSWORD = "user_prefs_with_password";
+    private static final String DEFAULT_PREFS_FILE_NAME = "com.securepreferences.test_preferences";
+    private static final String MY_CUSTOM_PREFS = "my_custom_prefs";
+    private static final String USER_PREFS_WITH_PASSWORD = "user_prefs_with_password";
 
 
     public TestSecurePreferences() {
@@ -48,8 +49,6 @@ public class TestSecurePreferences extends AndroidTestCase {
         super.setUp();
     }
 
-
-
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
@@ -59,11 +58,11 @@ public class TestSecurePreferences extends AndroidTestCase {
         deletePrefFile(DEFAULT_PREFS_FILE_NAME);
     }
 
-
     public void testKeyGeneratedCustomPrefFile() {
         final String prefFileName = generatePrefFileNameForTest();
 
-        SecurePreferences securePrefs = new SecurePreferences(getContext(), "", prefFileName);
+        SecurePreferences securePrefs = SecurePreferenceCreator.createQuickAesSecurePreferences(getContext(), prefFileName);
+
         SharedPreferences normalPrefs = getContext().getSharedPreferences(prefFileName, Context.MODE_PRIVATE);
 
         Map<String, String> allOfTheSecurePrefs = securePrefs.getAll();
@@ -89,46 +88,57 @@ public class TestSecurePreferences extends AndroidTestCase {
     public void testKeyGeneratedFromUserPassword() {
         final String prefFileName = generatePrefFileNameForTest();
 
-        SecurePreferences securePrefs = new SecurePreferences(getContext(), "password", prefFileName);
-        SharedPreferences normalPrefs = getContext().getSharedPreferences(prefFileName, Context.MODE_PRIVATE);
 
-        Map<String, ?> allTheSecurePrefs = securePrefs.getAll();
-        Map<String, ?> allThePrefs = normalPrefs.getAll();
+        SecurePreferences securePrefs = null;
+        try {
+            securePrefs = SecurePreferenceCreator.createPasswordBasedSecurePreferences(getContext(), "password", prefFileName);
+            SharedPreferences normalPrefs = getContext().getSharedPreferences(prefFileName, Context.MODE_PRIVATE);
+
+            Map<String, ?> allTheSecurePrefs = securePrefs.getAll();
+            Map<String, ?> allThePrefs = normalPrefs.getAll();
 
             assertTrue(
                     "the preference file should not contain any enteries as the key is generated via user password.",
                     allThePrefs.isEmpty());
 
 
-        //clean up here as pref file created for each test
-        deletePrefFile(prefFileName);
+            //clean up here as pref file created for each test
+            deletePrefFile(prefFileName);
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
     }
 
 
-    /**
-     * Test if incorrect password the prefs are not decrypted
-     */
-    public void testIncorrectUserPassword() {
+    public void testShouldFailToDecryptIfIncorrectPassword() {
         final String key = "mysecret";
         final String value = "keepsafe";
 
-        SecurePreferences securePrefs = new SecurePreferences(getContext(), "password", USER_PREFS_WITH_PASSWORD);
-        securePrefs.edit().putString(key, value).commit();
-        securePrefs=null;
+        SecurePreferences securePrefs = null;
+        try {
+            securePrefs = SecurePreferenceCreator.createPasswordBasedSecurePreferences(getContext(), "password", USER_PREFS_WITH_PASSWORD);
+            securePrefs.edit().putString(key, value).commit();
+            securePrefs = null;
 
-        SecurePreferences securePrefsWithWrongPass = new SecurePreferences(getContext(), "incorrectpassword", USER_PREFS_WITH_PASSWORD);
-        String myValue = securePrefsWithWrongPass.getString(key, null);
-        if(value.equals(myValue)){
-            fail("Using the wrong password, should not return the decrpyted value");
+            SecurePreferences securePrefsWithWrongPass = SecurePreferenceCreator.createPasswordBasedSecurePreferences(getContext(), "incorrectpassword", USER_PREFS_WITH_PASSWORD);
+            String myValue = securePrefsWithWrongPass.getString(key, null);
+
+            if (value.equals(myValue)) {
+                fail("Using the wrong password, should not return the decrpyted value");
+            }
+
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+            fail(e.getMessage());
         }
 
     }
 
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void testSaveStringSet() {
+    public void testSuccessfullySavesStringSet() {
 
-        final String key = "fooString";
+        final String key = "TEST_STRING_SET_KEY";
         final String value = "bar";
         final String value2 = "bar2";
         final String value3 = "bar3";
@@ -138,7 +148,7 @@ public class TestSecurePreferences extends AndroidTestCase {
         mySet.add(value2);
         mySet.add(value3);
 
-        SecurePreferences securePrefs = new SecurePreferences(getContext());
+        SecurePreferences securePrefs = SecurePreferenceCreator.createQuickAesSecurePreferences(PreferenceManager.getDefaultSharedPreferences(getContext()));
         Editor edit = securePrefs.edit();
         edit.putStringSet(key, mySet);
         edit.commit();
@@ -148,25 +158,25 @@ public class TestSecurePreferences extends AndroidTestCase {
 
     }
 
-	public void testSaveString() {
+    public void testSuccessfullySaveString() {
 
-		final String key = "fooString";
-		final String value = "bar";
-		SharedPreferences securePrefs = new SecurePreferences(getContext());
-		Editor edit = securePrefs.edit();
-		edit.putString(key, value);
-		edit.commit();
+        final String key = "fooString";
+        final String value = "bar";
+        SharedPreferences securePrefs = SecurePreferenceCreator.createQuickAesSecurePreferences(PreferenceManager.getDefaultSharedPreferences(getContext()));
+        Editor edit = securePrefs.edit();
+        edit.putString(key, value);
+        edit.commit();
 
-		String retrievedValue = securePrefs.getString(key, null);
-		assertEquals(value, retrievedValue);
-	}
+        String retrievedValue = securePrefs.getString(key, null);
+        assertEquals(value, retrievedValue);
+    }
 
     public void testSaveStringInCustomPref() {
 
         final String key = "customfoo";
         final String value = "custombar";
 
-        SecurePreferences securePrefs = new SecurePreferences(getContext(), "", MY_CUSTOM_PREFS);
+        SecurePreferences securePrefs = SecurePreferenceCreator.createQuickAesSecurePreferences(getContext(), MY_CUSTOM_PREFS);
         Editor edit = securePrefs.edit();
         edit.putString(key, value);
         edit.commit();
@@ -178,10 +188,10 @@ public class TestSecurePreferences extends AndroidTestCase {
 
     }
 
-    public void testSaveInt() {
+    public void testSuccessfullySaveInt() {
         final String key = "fooInt";
         final int value = 12345978;
-        SharedPreferences securePrefs = new SecurePreferences(getContext());
+        SharedPreferences securePrefs = SecurePreferenceCreator.createQuickAesSecurePreferences(getContext());
         Editor edit = securePrefs.edit();
         edit.putInt(key, value);
         edit.commit();
@@ -191,65 +201,31 @@ public class TestSecurePreferences extends AndroidTestCase {
         assertEquals(value, retrievedValue);
     }
 
-    public void testSaveFloat() {
-		final String key = "foofloat";
-		final float value = 0.99f;
-		SharedPreferences securePrefs = new SecurePreferences(getContext());
-		Editor edit = securePrefs.edit();
-		edit.putFloat(key, value);
-		edit.commit();
+    public void testSuccessfullySaveFloat() {
+        final String key = "foofloat";
+        final float value = 0.99f;
+        SharedPreferences securePrefs = SecurePreferenceCreator.createQuickAesSecurePreferences(getContext());
+        Editor edit = securePrefs.edit();
+        edit.putFloat(key, value);
+        edit.commit();
 
-		float retrievedValue = securePrefs.getFloat(key, -1);
+        float retrievedValue = securePrefs.getFloat(key, -1);
 
-		assertEquals(value, retrievedValue);
-	}
-
-	public void testSaveUnencrpyted() {
-		final String key = "unencryptedkey";
-		final String value = "bar";
-
-		SecurePreferences securePrefs = new SecurePreferences(getContext());
-		SecurePreferences.Editor secureEdit = securePrefs
-				.edit();
-		secureEdit.putUnencryptedString(key, value);
-		secureEdit.commit();
-
-		String retrievedValue = securePrefs.getEncryptedString(key, null);
-		assertEquals(value, retrievedValue);
-	}
-
-	public void testKeyIsEncrpyted() {
-
-
-		SecurePreferences securePrefs = new SecurePreferences(getContext());
-		SecurePreferences.Editor secureEdit = securePrefs
-				.edit();
-		secureEdit.putUnencryptedString(DEFAULT_KEY, DEFAULT_VALUE);
-		secureEdit.commit();
-
-		// the key should still be encrypted so the normal prefs should fail to
-		// find 'key'
-		SharedPreferences normalPrefs = PreferenceManager
-				.getDefaultSharedPreferences(getContext());
-		String retrievedValue = normalPrefs.getString(DEFAULT_KEY, null);
-
-		assertNull(DEFAULT_VALUE, retrievedValue);
-
-	}
+        assertEquals(value, retrievedValue);
+    }
 
     public void testDestroyKeys(){
-        SecurePreferences securePrefs = new SecurePreferences(getContext());
+        SecurePreferences securePrefs = SecurePreferenceCreator.createQuickAesSecurePreferences(getContext());
         Editor edit = securePrefs.edit();
         edit.putString(DEFAULT_KEY, DEFAULT_VALUE);
         edit.commit();
 
-        securePrefs.destroyKeys();
-
+        securePrefs.destroyKey();
         try {
             String retrievedValue = securePrefs.getString(DEFAULT_KEY, null);
             fail("Null pointer should be thrown not retrievedValue:" + retrievedValue);
-        }catch (NullPointerException e){
-
+        } catch (IllegalStateException e) {
+            //expected IllegalStateException
         }
     }
 
@@ -257,7 +233,7 @@ public class TestSecurePreferences extends AndroidTestCase {
         try {
             AesCbcWithIntegrity.SecretKeys mykeys = AesCbcWithIntegrity.generateKey();
 
-            SecurePreferences securePrefs = new SecurePreferences(getContext(), mykeys, "my-key-file");
+            SecurePreferences securePrefs = SecurePreferenceCreator.createSecurePreferencesWithKey(getContext(), mykeys, "my-key-file");
             Editor edit = securePrefs.edit();
             edit.putString(DEFAULT_KEY, DEFAULT_VALUE);
             edit.commit();
@@ -274,74 +250,77 @@ public class TestSecurePreferences extends AndroidTestCase {
 
 
     public void testUserPasswordBasedPrefGenerateSameKeyFromSamePassword() {
+        final String FIRST_PASSWORD = "myfirstpassword";
+        SecurePreferences securePrefs = null;
+        try {
+            securePrefs = SecurePreferenceCreator.createPasswordBasedSecurePreferences(getContext(), FIRST_PASSWORD, USER_PREFS_WITH_PASSWORD);
 
-        SecurePreferences securePrefs = new SecurePreferences(getContext(), "myfirstpassword", USER_PREFS_WITH_PASSWORD);
-        Editor editor = securePrefs.edit();
-        final String key = "pwchgfoo";
-        final String value = "pwchgbar";
-        editor.putString(key,value);
-        editor.commit();
+            Editor editor = securePrefs.edit();
+            final String key = "pwchgfoo";
+            final String value = "pwchgbar";
+            editor.putString(key, value);
+            editor.commit();
 
-        String valueFromPrefs = securePrefs.getString(key, null);
+            String valueFromPrefs = securePrefs.getString(key, null);
 
-        //get another secure prefs using the same password.
-        SecurePreferences securePrefs2 = new SecurePreferences(getContext(), "myfirstpassword", USER_PREFS_WITH_PASSWORD);
+            //get another secure prefs using the same password.
+            SecurePreferences securePrefs2 = SecurePreferenceCreator.createPasswordBasedSecurePreferences(getContext(), FIRST_PASSWORD, USER_PREFS_WITH_PASSWORD);
 
-        String valueFromPrefs2 = securePrefs2.getString(key, null);
+            String valueFromPrefs2 = securePrefs2.getString(key, null);
 
-        assertEquals("Both decrypted values should be the same", valueFromPrefs, valueFromPrefs2);
-        assertEquals("Decrypted value should match the original value", value, valueFromPrefs2);
+            assertEquals("Both decrypted values should be the same", valueFromPrefs, valueFromPrefs2);
+            assertEquals("Decrypted value should match the original value", value, valueFromPrefs2);
 
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
 
     }
 
 
     public void testChangeUserPassword() {
-        SecurePreferences securePrefs = new SecurePreferences(getContext(), "myfirstpassword", USER_PREFS_WITH_PASSWORD);
-        Editor editor = securePrefs.edit();
-        final String key = "pwchgfoo";
-        final String value = "pwchgbar";
-        editor.putString(key,value);
-        editor.commit();
+        final String key = "FOO_PASS_CHANGE_KEY";
+        final String value = "FOO_PASS_CHANGE_VALUE";
+        final String FIRST_PASSWORD = "myfirstpassword";
+        final String NEW_PASSWORD = "newPassword";
+        final byte[] SALT = new byte[]{0x00, 0x01, 0x02, 0x03};
 
-        String cipherText = securePrefs.getEncryptedString(key, null);
         try {
-            securePrefs.handlePasswordChange("newPassword", getContext());
+            SecurePreferences securePrefs = SecurePreferenceCreator.createPasswordBasedSecurePreferences(
+                    getContext(), FIRST_PASSWORD, SALT, SecurePreferenceCreator.ITERATION_COUNT_QUICK_LESS_SECURE,
+                    USER_PREFS_WITH_PASSWORD);
+            Editor editor = securePrefs.edit();
+
+            editor.putString(key, value);
+            editor.commit();
+
+            String cipherText = securePrefs.getEncryptedString(key, null);
+
+            AesCbcWithIntegrityPrefValueEncrypter aesCbcWithIntegrityPrefValueEncrypter
+                    = AesCbcWithIntegrityPrefValueEncrypter.builder()
+                    .withPasswordSaltAndIterationsToGenerateKey(NEW_PASSWORD, SALT,
+                            SecurePreferenceCreator.ITERATION_COUNT_QUICK_LESS_SECURE).build();
+
+            securePrefs.migrateValues(aesCbcWithIntegrityPrefValueEncrypter);
+
+
+            String cipherTextFromNewPassword = securePrefs.getEncryptedString(key, null);
+            String valueFromNewPassword = securePrefs.getString(key, null);
+
+
+            assertNotNull("Cipher Text for key: " + key + " should not be null", cipherTextFromNewPassword);
+
+            assertNotSame("The two cipher texts should not be the same", cipherText, cipherTextFromNewPassword);
+
+            assertEquals(value, valueFromNewPassword);
+
         } catch (GeneralSecurityException e) {
-            fail("error changing passwd: " + e.getMessage());
+            e.printStackTrace();
+            fail(e.getMessage());
         }
-
-        String cipherTextFromNewPassword = securePrefs.getEncryptedString(key, null);
-        String valueFromNewPassword = securePrefs.getString(key, null);
-
-        assertNotNull("Cipher Text for key: " + key + " should not be null", cipherTextFromNewPassword);
-        assertNotSame("The two cipher texts should not be the same", cipherText, cipherTextFromNewPassword);
-        assertEquals(value, valueFromNewPassword);
     }
 
-
-    public void testChangeIterationCount() {
-        SecurePreferences securePrefs = new SecurePreferences(getContext(), "myfirstpassword", USER_PREFS_WITH_PASSWORD);
-        Editor editor = securePrefs.edit();
-        final String key = "pwchgfoo";
-        final String value = "pwchgbar";
-        editor.putString(key,value);
-        editor.commit();
-
-        String cipherText = securePrefs.getEncryptedString(key, null);
-        try {
-            securePrefs.handlePasswordChange("myfirstpassword", getContext(), 1000);
-        } catch (GeneralSecurityException e) {
-            fail("error changing passwd: " + e.getMessage());
-        }
-
-        String cipherTextFromPasswordChangedIteration = securePrefs.getEncryptedString(key, null);
-        String valueFromPasswordChangedIteration = securePrefs.getString(key, null);
-
-        assertNotNull("Cipher Text for key: " + key + " should not be null", cipherTextFromPasswordChangedIteration);
-        assertNotSame("The two cipher texts should not be the same", cipherText, cipherTextFromPasswordChangedIteration);
-        assertEquals(value, valueFromPasswordChangedIteration);
-    }
 
     /**
      * Load the pref xml file and read through to see if it has any <string tags.
@@ -353,14 +332,14 @@ public class TestSecurePreferences extends AndroidTestCase {
         File f = getPrefFile(prefFileName);
 
         if (f!=null && f.exists()){
-                BufferedReader br = new BufferedReader(new FileReader(f));
-                String line = "";
-                while((line = br.readLine()) != null) {
-                    if(line.contains(pattern)){
-                        Log.d(TAG, "line contains " + pattern);
-                        return true;
-                    }
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            String line = "";
+            while ((line = br.readLine()) != null) {
+                if (line.contains(pattern)) {
+                    Log.d(TAG, "line contains " + pattern);
+                    return true;
                 }
+            }
         }else{
             Log.d(TAG, "File not out to search: " + prefFileName);
 

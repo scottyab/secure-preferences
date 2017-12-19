@@ -107,6 +107,7 @@ public class SecurePreferences implements SharedPreferences, SecretKeyDatasource
     public void destroyKey() {
         String obfuscatedKey = obfuscatedKeyName(KEY_NAME);
         sharedPreferences.edit().remove(obfuscatedKey).commit();
+        prefValueEncrypter = null;
     }
 
 
@@ -118,7 +119,7 @@ public class SecurePreferences implements SharedPreferences, SecretKeyDatasource
     @Nullable
     @Override
     public String getString(String key, @Nullable String defaultValue) {
-        return decryptStringValue(key, defaultValue);
+        return retrieveAndDecryptStringValue(key, defaultValue);
     }
 
     /**
@@ -132,11 +133,15 @@ public class SecurePreferences implements SharedPreferences, SecretKeyDatasource
         return sharedPreferences.getString(obfuscatedKey, defaultValue);
     }
 
-    private String decryptStringValue(String key, String defaultValue) {
+    private String retrieveAndDecryptStringValue(String key, String defaultValue) {
         checkInitialised();
 
         String obfuscatedKey = keyNameObfuscator.obfuscate(key);
         String cipherText = sharedPreferences.getString(obfuscatedKey, null);
+        return decryptStringValue(cipherText, defaultValue);
+    }
+
+    private String decryptStringValue(String cipherText, String defaultValue) {
         if (cipherText == null) {
             return defaultValue;
         } else {
@@ -148,9 +153,10 @@ public class SecurePreferences implements SharedPreferences, SecretKeyDatasource
         }
     }
 
+
     @Override
     public int getInt(String key, int defaultInt) {
-        String stringValue = decryptStringValue(key, null);
+        String stringValue = retrieveAndDecryptStringValue(key, null);
         if (stringValue != null) {
             try {
                 return Integer.valueOf(stringValue);
@@ -164,7 +170,7 @@ public class SecurePreferences implements SharedPreferences, SecretKeyDatasource
 
     @Override
     public long getLong(String key, long defaultLong) {
-        String stringValue = decryptStringValue(key, null);
+        String stringValue = retrieveAndDecryptStringValue(key, null);
         if (stringValue != null) {
             try {
                 return Long.valueOf(stringValue);
@@ -178,7 +184,7 @@ public class SecurePreferences implements SharedPreferences, SecretKeyDatasource
 
     @Override
     public float getFloat(String key, float defaultFloat) {
-        String stringValue = decryptStringValue(key, null);
+        String stringValue = retrieveAndDecryptStringValue(key, null);
         if (stringValue != null) {
             try {
                 return Float.valueOf(stringValue);
@@ -192,7 +198,7 @@ public class SecurePreferences implements SharedPreferences, SecretKeyDatasource
 
     @Override
     public boolean getBoolean(String key, boolean defaultBoolean) {
-        String stringValue = decryptStringValue(key, null);
+        String stringValue = retrieveAndDecryptStringValue(key, null);
         if (stringValue != null) {
             return Boolean.parseBoolean(stringValue);
         } else {
@@ -380,8 +386,9 @@ public class SecurePreferences implements SharedPreferences, SecretKeyDatasource
 
         //iterate through the current prefs unencrypting each one
         for (String prefKey : prefKeys) {
-            String value = getString(prefKey, null);
-            unencryptedPrefs.put(prefKey, value);
+            String encryptedValue = sharedPreferences.getString(prefKey, null);
+            String unencryptedValue = decryptStringValue(encryptedValue, null);
+            unencryptedPrefs.put(prefKey, unencryptedValue);
         }
 
         edit().clear().commit();

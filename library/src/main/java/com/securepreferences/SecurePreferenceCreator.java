@@ -15,9 +15,13 @@ import java.security.GeneralSecurityException;
  */
 public class SecurePreferenceCreator {
 
+    // TODO: 15/12/2017 make sure there's an one to one mapping between old constructors and helper methods and that the compatible crypto is used
+
     public static int ITERATION_COUNT_QUICK_LESS_SECURE = 100;
     public static int ITERATION_COUNT_MEDIUM = 500;
     public static int ITERATION_COUNT_STRONGER_SLOWER = 10_000;
+
+    private static final int ITERATION_COUNT_ORIGONAL = ITERATION_COUNT_STRONGER_SLOWER;
 
 
     private SecurePreferenceCreator() {
@@ -105,7 +109,7 @@ public class SecurePreferenceCreator {
      */
     public static SecurePreferences createPasswordBasedSecurePreferences(Context context, String password, @Nullable String prefFilename) throws GeneralSecurityException {
         byte[] salt = Utils.deviceId(context).getBytes();
-        return createPasswordBasedSecurePreferences(context, password, salt, ITERATION_COUNT_MEDIUM, prefFilename);
+        return createPasswordBasedSecurePreferences(context, password, salt, ITERATION_COUNT_ORIGONAL, prefFilename);
     }
 
 
