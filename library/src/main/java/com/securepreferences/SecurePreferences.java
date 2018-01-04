@@ -97,7 +97,7 @@ public class SecurePreferences implements SharedPreferences {
      * @param sharedPrefFilename name of the shared pref file. If null use the default shared prefs
      */
     public SecurePreferences(Context context, final String password, final String sharedPrefFilename) {
-        this(context, null, password, sharedPrefFilename, ORIGINAL_ITERATION_COUNT);
+        this(context, password, null, sharedPrefFilename, ORIGINAL_ITERATION_COUNT);
     }
 
 

@@ -1,5 +1,8 @@
 # Secure Preferences Release Notes: #
 
+## 0.1.6 ##
+* 73 Wrong parameters order in one constructor
+
 ## 0.1.5 ##
 * 54 Allow to pass Salt so you don't have to use Android_ID - Thanks to @linakis
 * 38 Ensure we always return a String in getString thanks to @aeoris    
