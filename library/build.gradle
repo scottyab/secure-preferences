@@ -1,13 +1,10 @@
 apply plugin: 'com.android.library'
 
-/*
+
 repositories {
-    mavenCentral()
-    flatDir {
-        dirs 'libs' //this way we can find the .aar file in libs folder
-    }
+    google()
+    jcenter()
 }
-*/
 
 android {
     compileSdkVersion 27
@@ -24,6 +21,7 @@ android {
     }
 
     dependencies {
+
         compile 'com.scottyab:aes-crypto:0.0.5'
 
         //used when referencing a local copy of aes-crypto
