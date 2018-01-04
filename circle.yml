@@ -5,6 +5,12 @@
 #  artifacts:
 #    -/home/ubuntu/secure-preferences/build/outputs/reports/citest/connected
 
+machine:
+  java:
+    version: openjdk8
+  environment:
+    ANDROID_HOME: /usr/local/android-sdk-linux
+
 test:
 #  pre:
    override:
