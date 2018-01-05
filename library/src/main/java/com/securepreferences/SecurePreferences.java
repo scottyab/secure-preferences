@@ -124,7 +124,7 @@ public class SecurePreferences implements SharedPreferences {
      * @param iterationCount The iteration count for the keys generation
      */
     public SecurePreferences(Context context, final String password, final String salt, final String sharedPrefFilename, int iterationCount) {
-        this(context, null, password, sharedPrefFilename, salt, iterationCount);
+        this(context, null, password, salt, sharedPrefFilename, iterationCount);
     }
 
     private SecurePreferences(Context context, final AesCbcWithIntegrity.SecretKeys secretKey, final String password, final String salt, final String sharedPrefFilename, int iterationCount) {
