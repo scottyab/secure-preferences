@@ -26,7 +26,7 @@ Note: v0.1.0 was dependent on snapshot of aes-crypto, this is only as I was wait
 
 ```java
 dependencies {
-    compile 'com.scottyab:secure-preferences-lib:0.1.4'
+    implementation 'com.scottyab:secure-preferences-lib:0.1.4'
 }
 ```
 
