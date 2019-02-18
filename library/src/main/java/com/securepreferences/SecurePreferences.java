@@ -82,6 +82,13 @@ public class SecurePreferences implements SharedPreferences {
         this(context, "", null);
     }
 
+    /**
+     * @param context should be ApplicationContext not Activity
+     * @param salt is custom salt you choose for encryption
+     */
+    public SecurePreferences(Context context, String salt) {
+        this(context, null, "", salt, null, ORIGINAL_ITERATION_COUNT);
+    }
 
     /**
      * @param context        should be ApplicationContext not Activity
