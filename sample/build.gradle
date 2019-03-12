@@ -18,14 +18,14 @@ buildscript {
 }
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '26.0.3'
+    compileSdkVersion 28
+    buildToolsVersion '28.0.3'
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 27
-        versionCode 7
-        versionName "1.0.4"
+        targetSdkVersion 28
+        versionCode 8
+        versionName "1.0.5"
     }
 
     sourceSets {
@@ -74,8 +74,8 @@ android {
 
 
     dependencies {
-        compile 'com.android.support:appcompat-v7:27.0.2'
-        compile fileTree(dir: 'libs', include: '*.jar')
+        implementation 'com.android.support:appcompat-v7:28.0.0'
+        implementation fileTree(dir: 'libs', include: '*.jar')
 
         //compile 'com.scottyab:secure-preferences-lib:0.1.1'
         //snapshot
@@ -83,9 +83,6 @@ android {
 
         //used when using local aes-crypto
         //compile project(':aes-crypto-release')
-        compile project(':library')
-
-
-
+        implementation project(':library')
     }
 }
