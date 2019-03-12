@@ -1,5 +1,8 @@
 # Secure Preferences Release Notes: #
 
+## 0.1.7 ##
+* PR #92 to allow pass own salt 
+
 ## 0.1.6 ##
 * 73 Wrong parameters order in one constructor
 
