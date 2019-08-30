@@ -21,7 +21,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -230,42 +229,15 @@ public class SecurePreferences implements SharedPreferences {
         return hashPrefKey(generatedKeyName.toString());
     }
 
-
-    /**
-     * Gets the hardware serial number of this device.
-     *
-     * @return serial number or Settings.Secure.ANDROID_ID if not available.
-     */
-    @SuppressLint("HardwareIds")
-    private static String getDeviceSerialNumber(Context context) {
-        // We're using the Reflection API because Build.SERIAL is only available
-        // since API Level 9 (Gingerbread, Android 2.3).
-        try {
-            String deviceSerial = (String) Build.class.getField("SERIAL").get(
-                    null);
-            if (TextUtils.isEmpty(deviceSerial)) {
-                return Settings.Secure.getString(
-                        context.getContentResolver(),
-                        Settings.Secure.ANDROID_ID);
-            } else {
-                return deviceSerial;
-            }
-        } catch (Exception ignored) {
-            // Fall back  to Android_ID
-            return Settings.Secure.getString(context.getContentResolver(),
-                    Settings.Secure.ANDROID_ID);
-        }
-    }
-
     /**
      * Gets the salt value
      *
-     * @param context used for accessing hardware serial number of this device in case salt is not set
+     * @param context used for accessing hardware serial number (if accessible) or the DeviceId in case salt is not set
      * @return
      */
     private String getSalt(Context context) {
         if (TextUtils.isEmpty(this.salt)) {
-            return getDeviceSerialNumber(context);
+            return Utils.getDefaultSalt(context);
         } else {
             return this.salt;
         }

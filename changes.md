@@ -1,5 +1,10 @@
 # Secure Preferences Release Notes: #
 
+## 0.1.8 ##
+* Fix crash in Android 10 / Q due to accessing Device Serial 
+
+WARNING: SecurePreferences will fail to decrypt previously encrypted values if device is upgraded to Android 10/Q. This is due to default Salt using the Device Serial which is no longer accessible. 
+
 ## 0.1.7 ##
 * PR #92 to allow pass own salt 
 
