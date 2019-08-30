@@ -24,7 +24,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -75,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private void initViews() {
-		encValuesTextView = (TextView) findViewById(R.id.fooValueEncTV);
+        encValuesTextView = findViewById(R.id.fooValueEncTV);
 	}
 
     private SharedPreferences getSharedPref(){
@@ -157,19 +156,15 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	public void onFragmentButtonClick(View v) {
-		// TODO: show an example with something like unified prefs
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			startActivity(new Intent(this, ActivityWithPreferenceFragment.class));
-		} else {
-			toast("PreferenceFragment not support before Android 3.0");
-		}
-	}
+        startActivity(new Intent(this, ActivityWithPreferenceFragment.class));
+    }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+        menu.findItem(R.id.action_version).setTitle(getString(R.string.version, BuildConfig.VERSION_NAME));
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -197,8 +192,8 @@ public class MainActivity extends AppCompatActivity {
         LayoutInflater li = LayoutInflater.from(this);
         View dialogContent = li.inflate(R.layout.dialog_password, null);
 
-        TextView messageTV = (TextView)dialogContent.findViewById(R.id.message);
-        final EditText passwordET = (EditText)dialogContent.findViewById(R.id.passwordET);
+        TextView messageTV = dialogContent.findViewById(R.id.message);
+        final EditText passwordET = dialogContent.findViewById(R.id.passwordET);
 
         builder.setView(dialogContent);
 

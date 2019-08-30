@@ -21,4 +21,10 @@
             android:orderInCategory="100"
             app:showAsAction="never"
           />
+
+  <item
+    android:id="@+id/action_version"
+    android:title="@string/action_change_password_user_prefs"
+    android:orderInCategory="100"
+    app:showAsAction="never" />
 </menu>

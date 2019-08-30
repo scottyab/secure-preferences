@@ -37,7 +37,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * Wrapper class for Android's {@link SharedPreferences} interface, which adds a
@@ -238,6 +237,7 @@ public class SecurePreferences implements SharedPreferences {
      */
     private String getSalt(Context context) {
         if (TextUtils.isEmpty(this.salt)) {
+            Log.w(TAG, "Using the default generated Salt, it's more forward compatible to pass your own salt or use password");
             return Utils.getDefaultSalt(context);
         } else {
             return this.salt;

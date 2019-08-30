@@ -37,6 +37,7 @@
     <string name="action_github">Get it on Github</string>
     <string name="action_create_user_prefs">Create user prefs</string>
     <string name="action_change_password_user_prefs">Change password on user prefs</string>
+  <string name="version">App version %s</string>
 
     <string-array name="list_entries">
         <item>One</item>

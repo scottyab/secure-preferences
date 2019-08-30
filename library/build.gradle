@@ -22,7 +22,7 @@ android {
 
     dependencies {
 
-        compile 'com.scottyab:aes-crypto:0.0.5'
+        api 'com.scottyab:aes-crypto:0.0.5'
 
         //used when referencing a local copy of aes-crypto
         //compile project(':aes-crypto-release')
