@@ -37,6 +37,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Wrapper class for Android's {@link SharedPreferences} interface, which adds a
@@ -83,7 +84,7 @@ public class SecurePreferences implements SharedPreferences {
 
     /**
      * @param context should be ApplicationContext not Activity
-     * @param salt is custom salt you choose for encryption
+     * @param salt    is custom salt you choose for encryption
      */
     public SecurePreferences(Context context, String salt) {
         this(context, null, "", salt, null, ORIGINAL_ITERATION_COUNT);
@@ -308,32 +309,47 @@ public class SecurePreferences implements SharedPreferences {
     }
 
     /**
-     * @return map of with decrypted values (excluding the key if present)
+     * Return the map of all the objects that are stored in the shared preferences.
+     * @return Map<K, V> where,
+     * K is the hashed key
+     * V is the decrypted value. The value will be of type String or StringSet only.
+     * All other types apart from StringSet will be returned as String.
      */
     @Override
-    public Map<String, String> getAll() {
+    public Map<String, ?> getAll() {
         //wont be null as per http://androidxref.com/5.1.0_r1/xref/frameworks/base/core/java/android/app/SharedPreferencesImpl.java
         final Map<String, ?> encryptedMap = sharedPreferences.getAll();
-        final Map<String, String> decryptedMap = new HashMap<String, String>(
+
+        final Map<String, Object> decryptedMap = new HashMap<>(
                 encryptedMap.size());
+
         for (Entry<String, ?> entry : encryptedMap.entrySet()) {
+            Object cipherText = entry.getValue();
+
+            // Check if the data stored is a StringSet
+            if (cipherText == null || cipherText.equals(keys.toString())) {
+                continue;
+            }
+
             try {
-                Object cipherText = entry.getValue();
-                //don't include the key
-                if (cipherText != null && !cipherText.equals(keys.toString())) {
-                    //the prefs should all be strings
-                    decryptedMap.put(entry.getKey(),
-                            decrypt(cipherText.toString()));
+                Set<String> stringSet = getDecryptedStringSet(cipherText);
+
+                if (stringSet != null) {
+                    decryptedMap.put(entry.getKey(), stringSet);
+                } else {
+                    decryptedMap.put(entry.getKey(), decrypt(cipherText.toString()));
                 }
+
             } catch (Exception e) {
                 if (sLoggingEnabled) {
                     Log.w(TAG, "error during getAll", e);
                 }
                 // Ignore issues that unencrypted values and use instead raw cipher text string
                 decryptedMap.put(entry.getKey(),
-                        entry.getValue().toString());
+                        cipherText.toString());
             }
         }
+
         return decryptedMap;
     }
 
@@ -648,5 +664,36 @@ public class SecurePreferences implements SharedPreferences {
             OnSharedPreferenceChangeListener listener) {
         sharedPreferences
                 .unregisterOnSharedPreferenceChangeListener(listener);
+    }
+
+    /**
+     * Method to get the decrypted string set from a cipher text
+     * @param cipherText The cipher text from which the string set needs to be retrieved
+     * @return null if the cipherText is not a valid StringSet, or any of the values in the set are not strings.
+     * Else, it will return the StringSet with the decrypted values.
+     */
+    private Set<String> getDecryptedStringSet(Object cipherText) {
+        if (cipherText == null) {
+            return null;
+        }
+
+        boolean isSet = cipherText instanceof Set<?>;
+
+        if (!isSet) {
+            return null;
+        }
+
+        Set<?> encryptedSet = (Set<?>) cipherText;
+        Set<String> decryptedSet = new HashSet<>();
+
+        for (Object object : encryptedSet) {
+            if (object instanceof String) {
+                decryptedSet.add(decrypt((String) object));
+            } else {
+                return null;
+            }
+        }
+
+        return decryptedSet;
     }
 }
