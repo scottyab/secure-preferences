@@ -24,8 +24,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 28
-        versionCode 8
-        versionName "1.0.5"
+        versionCode 9
+        versionName "0.1.8"
     }
 
     sourceSets {
@@ -75,7 +75,6 @@ android {
 
     dependencies {
         implementation 'com.android.support:appcompat-v7:28.0.0'
-        implementation fileTree(dir: 'libs', include: '*.jar')
 
         //compile 'com.scottyab:secure-preferences-lib:0.1.1'
         //snapshot
