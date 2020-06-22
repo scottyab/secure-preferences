@@ -1,7 +1,9 @@
-Secure-preferences
+Secure-preferences - Deprecated 
 ==================
 
-***There are no active maintainers Secure-preferences - advise new projects to seek alternative ways to secure/obfuscate shared preference values. ***
+* Please use EncryptedSharedPreferences from [androidx.security](https://developer.android.com/jetpack/androidx/releases/security) in preferenced to secure-preferences* 
+
+*There are no active maintainers Secure-preferences*
 
 
 This is Android Shared preference wrapper that encrypts the values of Shared Preferences using *AES 128*, *CBC*, and *PKCS5* padding with integrity checking in the form of a SHA 256 hash. Each key is stored as a one way SHA 256 hash. Both keys and values are base64 encoded before storing into prefs xml file. **By default the generated key is stored in the backing preferences file and so can be read and extracted by root user.** Recommend use the user password generated option as added in v0.1.0.
